@@ -39,7 +39,7 @@ public partial class MainPage : ContentPage
 		if (count == 1)
 			CounterBtn3.Text = $"Clicked me {count} time";
 		else
-			CounterBtn3.Text = $"Clicked me again {count} times";
+			CounterBtn3.Text = $"Clicked me again again 3 {count} times";
 
 		SemanticScreenReader.Announce(CounterBtn.Text);
 	}
