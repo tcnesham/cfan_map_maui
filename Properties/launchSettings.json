@@ -1,0 +1,26 @@
+{
+  "profiles": {
+    "Windows Machine": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    },
+    "iPhone (Tim 55)": {
+      "commandName": "Project",
+      "commandLineArgs": "--framework net9.0-ios --device-id 7155B332-27C5-579B-8D51-A2DAAA669998",
+      "nativeDebugging": false,
+      "hotReloadEnabled": true,
+      "environmentVariables": {
+        "DOTNET_MODIFIABLE_ASSEMBLIES": "debug"
+      }
+    },
+    "iOS Simulator": {
+      "commandName": "Project", 
+      "commandLineArgs": "--framework net9.0-ios --target ios-simulator-x64",
+      "nativeDebugging": false,
+      "hotReloadEnabled": true,
+      "environmentVariables": {
+        "DOTNET_MODIFIABLE_ASSEMBLIES": "debug"
+      }
+    }
+  }
+}

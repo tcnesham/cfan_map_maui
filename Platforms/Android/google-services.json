@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "99422961022",
+    "project_id": "cfan-schools",
+    "storage_bucket": "cfan-schools.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:99422961022:android:02817c8afb6efe0c2e472f",
+        "android_client_info": {
+          "package_name": "com.cfan.schoolmap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "99422961022-cdg8ocp6tnjsq77mmldc5hnssk2p2hvq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQGTbadh-Ca9ZX_yExU153vzUfHMmSphw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "99422961022-cdg8ocp6tnjsq77mmldc5hnssk2p2hvq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
