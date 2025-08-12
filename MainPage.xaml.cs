@@ -1,5 +1,6 @@
 ﻿namespace CFAN.SchoolMap.Maui;
 
+
 public partial class MainPage : ContentPage
 {
 	int count = 0;
@@ -8,6 +9,7 @@ public partial class MainPage : ContentPage
 	{
 		InitializeComponent();
 	}
+
 
 	private void OnCounterClicked(object? sender, EventArgs e)
 	{
@@ -21,26 +23,21 @@ public partial class MainPage : ContentPage
 		SemanticScreenReader.Announce(CounterBtn.Text);
 	}
 
-	private void OnCounterClicked2(object? sender, EventArgs e)
+	private void OnPlusCodeButtonClicked(object? sender, EventArgs e)
 	{
-		count++;
-
-		if (count == 1)
-			CounterBtn2.Text = $"Clicked me {count} time";
-		else
-			CounterBtn2.Text = $"Clicked me again {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn2.Text);
+		String placeIdString = PlaceIdEntry.Text;
+		if (string.IsNullOrWhiteSpace(placeIdString))
+		{
+			DisplayAlert("Error", "Please enter a valid Plus Code.", "OK");
+			return;
+		}
+		getPlace(placeIdString);
 	}
-	private void OnCounterClicked3(object? sender, EventArgs e) 
+
+	private async Task getPlace(String placeIdString)
 	{
-		count++;
-
-		if (count == 1)
-			CounterBtn3.Text = $"Clicked me {count} time";
-		else
-			CounterBtn3.Text = $"Clicked me again again 3 {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
+		var placeService = new CFAN.SchoolMap.Services.Places.PlaceService();
+		var result = await placeService.GetPluscodeOfPlace(placeIdString);
+		await DisplayAlert("Ok", "Result " + result, "OK");
 	}
 }

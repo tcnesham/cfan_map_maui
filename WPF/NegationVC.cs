@@ -6,14 +6,16 @@ namespace CFAN.Common.WPF
 {
     public class NegationVC : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return !((bool)value);
+            return !(value is bool b && b);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            return value;
+            if (value is bool b)
+                return b;
+            return false;
             //throw new NotImplementedException();
         }
     }

@@ -30,17 +30,16 @@
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
+            
             <Button
-                x:Name="CounterBtn2"
-                Text="Click me now again" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked2"
+                x:Name="PlusCodeButtonClicked"
+                Text="Click to get plus code"
+                SemanticProperties.Hint="Gets the Plus Code"
+                Clicked="OnPlusCodeButtonClicked"
                 HorizontalOptions="Fill" />
-            <Button
-                x:Name="CounterBtn3"
-                Text="Click me now again" 
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked3"
+            <Entry
+                x:Name="PlaceIdEntry"
+                Placeholder="Enter Place ID"
                 HorizontalOptions="Fill" />
         </VerticalStackLayout>
     </ScrollView>

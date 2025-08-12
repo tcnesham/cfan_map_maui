@@ -1,14 +1,22 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Shell
-    x:Class="CFAN.SchoolMap.Maui.AppShell"
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:CFAN.SchoolMap.Maui"
-    Title="CFAN.SchoolMap.Maui">
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:CFAN.SchoolMap.Maui"
+       x:Class="CFAN.SchoolMap.Maui.AppShell">
 
     <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Route="HomePage">
+        <ShellContent.ToolbarItems>
+            <ToolbarItem Text="Search" IconImageSource="search_icon.png" Command="{Binding SearchCommand}" />
+        </ShellContent.ToolbarItems>
+    </ShellContent>
+
+    <ShellContent
+        Title="About"
+        ContentTemplate="{DataTemplate local:AboutPage}"
+        Route="AboutPage" />
+
+    <!-- Add more ShellContent or FlyoutItems for other pages/sections -->
 
 </Shell>

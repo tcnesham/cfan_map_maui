@@ -1,16 +1,11 @@
 ﻿using CFAN.SchoolMap.Model;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using Microsoft.Maui.Controls;
 
 namespace CFAN.SchoolMap.Helpers
 {
     public class RoleToStringConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is Role role)
             {
@@ -18,19 +13,27 @@ namespace CFAN.SchoolMap.Helpers
             }
             else
             {
-                throw new InvalidCastException();
+                return null;
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is string roleDescription)
             {
-                return EnumHelper.GetValues(typeof(Role)).Where(r => (string)Convert(r, null, null, null) == roleDescription).FirstOrDefault();
+                var match = Enum.GetValues(typeof(Role))
+                    .Cast<Role>()
+                    .FirstOrDefault(r => (string)Convert(r, typeof(string), parameter, culture) == roleDescription);
+
+                if (EqualityComparer<Role>.Default.Equals(match, default(Role)))
+                {
+                    throw new InvalidOperationException($"No matching Role found for description '{roleDescription}'.");
+                }
+                return match;
             }
             else
             {
-                throw new InvalidCastException();
+                return null;
             }
         }
     }
