@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using CFAN.SchoolMap.Services.Auth;
+using CFAN.SchoolMap.Maui.Services.Auth;
 
 namespace CFAN.SchoolMap.Maui;
 
@@ -14,6 +16,9 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
+
+		// Register services
+		//builder.Services.AddSingleton<IAuth, FirebaseAuthService>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

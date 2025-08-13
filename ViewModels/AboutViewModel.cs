@@ -14,7 +14,6 @@ namespace CFAN.SchoolMap.ViewModels
 #endif
     public class AboutViewModel : BaseVM
     {
-        public IAuth Auth { get; private set; }
         public Command LoginCommand { get; }
         public Command LogoutCommand { get; }
         public string Email { get; set; }
@@ -31,8 +30,9 @@ namespace CFAN.SchoolMap.ViewModels
             LoginCommand = new SafeCommand(Login);
             LogoutCommand = new SafeCommand(Logout);
             ResetPwdCommand = new SafeCommand(ResetPwd);
-            Auth = DependencyService.Get<IAuth>();
-            Email = Auth.User.Email;
+            
+            // Safely handle the case where Auth or User might be null
+            Email = Auth?.User?.Email ?? "";
         }
         private async Task ResetPwd()
         {

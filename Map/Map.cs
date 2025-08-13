@@ -105,7 +105,6 @@ namespace CFAN.SchoolMap.Maui.GoogleMaps
 
         public Action<TakeSnapshotMessage> OnSnapshot{ get; set; }
 
-        MapSpan _visibleRegion;
         MapRegion _region;
 
         //// Simone Marra
