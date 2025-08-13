@@ -7,9 +7,7 @@
              x:DataType="vm:AboutViewModel"
              Title="{Binding Title}">
     
-    <ContentPage.BindingContext>
-        <vm:AboutViewModel />
-    </ContentPage.BindingContext>
+
     
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -58,7 +56,7 @@
                 </StackLayout>
                 </Frame>
                 <Frame 
-                    IsVisible="{Binding Auth.IsSignIn, Converter={wpf:NegationCX}}"
+                    IsVisible="{Binding Auth.IsSignIn, Converter={StaticResource InvertedBooleanConverter}}"
                     HorizontalOptions="Center">
                     <StackLayout>
                         <Label
@@ -86,6 +84,12 @@
                             VerticalOptions="Center" 
                             Text="Log in" 
                             Command="{Binding LoginCommand}"/>
+                        <Button
+                            VerticalOptions="Center" 
+                            Text="Test Auth Service" 
+                            Command="{Binding TestAuthCommand}"
+                            BackgroundColor="Orange"
+                            TextColor="White"/>
                         <!--<Button 
                                 StyleClass="One"
                                 Text="Forgotten password" 

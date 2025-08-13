@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net9.0-android</TargetFrameworks>
+		<!-- <TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks> -->
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
@@ -24,7 +25,7 @@
 		<ApplicationTitle>CFAN.SchoolMap.Maui</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.cfan.schoolmap.maui</ApplicationId>
+		<ApplicationId>com.cfan.schoolmap</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -34,7 +35,6 @@
 		<WindowsPackageType>None</WindowsPackageType>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
@@ -71,9 +71,9 @@
 	<ItemGroup>
 		<PackageReference Include="Acr.UserDialogs.Maui" Version="9.2.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+		<PackageReference Include="Firebase.Auth" Version="1.0.0" Aliases="FirebaseAuthNet" />
 		<PackageReference Include="GeoJSON.Net" Version="1.4.1" />
 		<PackageReference Include="Google.Cloud.BigQuery.V2" Version="3.11.0" />
-		<PackageReference Include="Google.Cloud.Firestore" Version="3.10.0" />
 		<PackageReference Include="GoogleApi" Version="5.8.8" />
 		<PackageReference Include="ISO3166" Version="1.0.4" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
@@ -86,7 +86,19 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
-  		<PackageReference Include="Xamarin.Google.Guava" Version="33.4.8.2" />
 	</ItemGroup>
+
+	<!-- Include google-services.json for Android -->
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+		<GoogleServicesJson Include="google-services.json" />
+	</ItemGroup>
+
+	<!-- <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-ios'">
+		<BundleResource Include="Platforms\iOS\GoogleService-Info.plist" />
+	</ItemGroup> -->
 
 </Project>

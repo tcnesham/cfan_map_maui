@@ -100,7 +100,30 @@ namespace CFAN.SchoolMap.MVVM
         public IExceptionHandler ExceptionHandler { get; } = DependencyService.Resolve<IExceptionHandler>();
 
         public IViewManager ViewManager { get; } = DependencyService.Resolve<IViewManager>();
-        public IAuth Auth { get; } = DependencyService.Resolve<IAuth>();
+        
+        private IAuth? _auth;
+        public IAuth? Auth 
+        { 
+            get 
+            {
+                if (_auth == null)
+                {
+                    // Try modern DI first
+                    _auth = ServiceHelper.GetService<IAuth>();
+                    System.Diagnostics.Debug.WriteLine($"BaseVM - Resolved Auth service via ServiceHelper: {_auth}");
+                    
+                    // Fallback to DependencyService if modern DI failed
+                    if (_auth == null)
+                    {
+                        _auth = DependencyService.Resolve<IAuth>();
+                        System.Diagnostics.Debug.WriteLine($"BaseVM - Resolved Auth service via DependencyService: {_auth}");
+                    }
+                    
+                    System.Diagnostics.Debug.WriteLine($"BaseVM - Auth service type: {_auth?.GetType().FullName}");
+                }
+                return _auth;
+            }
+        }
 
         bool _isBusy;
         public bool IsBusy

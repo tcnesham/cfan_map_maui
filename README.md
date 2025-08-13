@@ -10,6 +10,17 @@
 #### dotnet add package ISO3166
 #### dotnet add package Acr.UserDialogs.Maui --version 9.2.2
 
+## Package change related to error 
+### Error The type FirebaseAuthException exists in both Firebase.Auth and Xamarin.Firebase.Auth.Interop
+### Fixed by package changes and using extern alias FirebaseAuthNet; in DefaultAuthService
+### Login worked - removed Google.Cloud.Firestore and added
+### Plugin.CloudFirestore 4.1.0 Author(s):f-miyu
+### Firebase.Auth 1.0.0 Author(s):Step Up Labs, Inc.
+### However, other Firebase/Google tests are not completed so may need change packages again
+### This link: https://github.com/TobiasBuchholz/Plugin.Firebase
+### has a package that may have all that is needed 
+
+
 #### Executing task: dotnet add '/Users/timnesham/CascadeProjects/CFAN.SchoolMap.Maui/CFAN.SchoolMap.Maui.csproj' package Onion.Maui.GoogleMaps -v #### 6.2.0 -s https://api.nuget.org/v3/index.json --interactive 
 #### Using rt-click the csproj -> NuGet package manager and install Onion.Maui.GoogleMaps
 #### YouTube https://www.youtube.com/watch?v=775rzp2U82M

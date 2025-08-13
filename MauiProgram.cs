@@ -18,7 +18,8 @@ public static class MauiProgram
 			});
 
 		// Register services
-		//builder.Services.AddSingleton<IAuth, FirebaseAuthService>();
+		builder.Services.AddSingleton<IAuth, DefaultAuthService>();
+		builder.Services.AddSingleton<App>();
 
 #if DEBUG
 		builder.Logging.AddDebug();
