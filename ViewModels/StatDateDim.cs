@@ -17,6 +17,8 @@
         {
             return "" + value[0] + value[1] + "-" + value[2] + value[3] + "-" + value[4] + value[5];
         }
+        
+        public override string ToString() => Title;
     }
 
     public class StatDimWeek : IStatDateDim
@@ -29,6 +31,8 @@
         {
             return "20" + value[0] + value[1] + " week " + value[2] + value[3];
         }
+        
+        public override string ToString() => Title;
     }
 
     public class StatDimMonth : IStatDateDim
@@ -40,6 +44,8 @@
         {
             return "20" + value[0] + value[1] + "-" + value[2] + value[3];
         }
+        
+        public override string ToString() => Title;
     }
 
     public class StatDimYear : IStatDateDim
@@ -51,5 +57,7 @@
         {
             return "20" + value[0] + value[1];
         }
+        
+        public override string ToString() => Title;
     }
 }

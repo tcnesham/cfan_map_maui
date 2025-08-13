@@ -2,7 +2,9 @@
 <mvvm1:ViewBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mvvm1="clr-namespace:CFAN.SchoolMap.MVVM;assembly=CFAN.SchoolMap.Maui"
+             xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
              x:Class="CFAN.SchoolMap.Views.UserNameRolesPage"
+             x:DataType="vm:UserNameRolesVM"
              BackgroundColor="{StaticResource BackgroundColor}">
     <ContentPage.Content>
         <Grid

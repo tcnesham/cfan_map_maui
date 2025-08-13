@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CFAN.SchoolMap.Views.MarketStatisticsPage"
              xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
-             xmlns:wpf="clr-namespace:CFAN.SchoolMap.WPF;assembly=CFAN.SchoolMap"
+             xmlns:wpf="clr-namespace:CFAN.SchoolMap.WPF;assembly=CFAN.SchoolMap.Maui"
+             x:DataType="vm:MarketStatisticsViewModel"
              Title="{Binding Title}">
     
     <ContentPage.BindingContext>
@@ -24,7 +25,6 @@
                            Margin="0"
                            Padding="0"> 
                 <Picker ItemsSource="{Binding Dims}"
-                            ItemDisplayBinding="{Binding Title}"
                             SelectedItem="{Binding SelectedDim}"
                             VerticalOptions="Center"
                             HorizontalTextAlignment="Center"
@@ -44,7 +44,6 @@
                            Padding="0"
                        IsVisible="{Binding FilterByCountry}"> 
                  <Picker ItemsSource="{Binding Countries}"
-                        ItemDisplayBinding="{Binding Name}"
                         SelectedItem="{Binding SelectedCountry}"
                         IsEnabled="{Binding FilterByCountry}"
                         HorizontalTextAlignment="Center"
@@ -98,7 +97,7 @@
                 </ListView.Header>
 
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="vm:StatValue">
                         <ViewCell>
                             <Grid 
                                 BackgroundColor="{StaticResource Primary}"

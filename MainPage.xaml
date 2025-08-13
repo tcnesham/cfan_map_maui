@@ -5,7 +5,7 @@
 <ContentPage.ToolbarItems>
         <ToolbarItem Text="Add" IconImageSource="add_icon.png" />
         <ToolbarItem Text="Save" IconImageSource="save_icon.png" />
-        <ToolbarItem Text="Search" IconImageSource="search_icon.png" Command="{Binding SearchCommand}" />
+        <ToolbarItem Text="Search" IconImageSource="search_icon.png" />
     </ContentPage.ToolbarItems>
 
     <ScrollView>

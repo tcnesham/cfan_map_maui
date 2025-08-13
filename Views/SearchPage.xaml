@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:CFAN.SchoolMap.ViewModels;assembly=CFAN.SchoolMap.Maui"
              xmlns:controls="clr-namespace:CFAN.SchoolMap.Controls;assembly=CFAN.SchoolMap.Maui"
-             x:Class="CFAN.SchoolMap.Views.SearchPage">
+             xmlns:database="clr-namespace:CFAN.SchoolMap.Database;assembly=CFAN.SchoolMap.Maui"
+             x:Class="CFAN.SchoolMap.Views.SearchPage"
+             x:DataType="viewModels:SearchViewModel">
     <ContentPage.BindingContext>
         <viewModels:SearchViewModel />
     </ContentPage.BindingContext>
@@ -54,7 +56,7 @@
                 ItemClickCommand="{Binding PlaceClickedCommand}"
                 >
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="database:PlaceSearchResult">
                         <ViewCell >
                             <StackLayout Padding="5">
                                 <Label 

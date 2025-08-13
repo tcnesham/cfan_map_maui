@@ -3,7 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mvvm1="clr-namespace:CFAN.SchoolMap.MVVM;assembly=CFAN.SchoolMap.Maui"
              xmlns:controls1="clr-namespace:CFAN.SchoolMap.Controls;assembly=CFAN.SchoolMap.Maui"
+             xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
+             xmlns:model="clr-namespace:CFAN.SchoolMap.Model"
              x:Class="CFAN.SchoolMap.Views.RolesPage"
+             x:DataType="vm:RolesVM"
              BackgroundColor="{StaticResource BackgroundColor}">
     <ContentPage.Content>
         <Grid
@@ -30,7 +33,7 @@
                 HasUnevenRows="True"
                 BackgroundColor="{StaticResource BackgroundColor}">          
                 <ListView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="model:User">
                         <ViewCell>
                             <StackLayout
                                 Spacing="0">
