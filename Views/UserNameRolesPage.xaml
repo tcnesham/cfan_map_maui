@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mvvm1:ViewBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mvvm1="clr-namespace:CFAN.SchoolMap.MVVM;assembly=CFAN.SchoolMap.Maui"
+             x:Class="CFAN.SchoolMap.Views.UserNameRolesPage"
+             BackgroundColor="{StaticResource BackgroundColor}">
+    <ContentPage.Content>
+        <Grid
+            Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Entry
+                Grid.Row="0"
+                Text="{Binding User.Name}"
+                StyleClass="Header"
+                TextColor="#d90000"
+                FontSize="25"
+                />
+            <ScrollView Grid.Row="1" Orientation="Vertical">
+            <StackLayout>
+
+                <StackLayout
+                    IsVisible="{Binding IsSchoolRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding View_schools, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can view schools"/>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding IsSchoolRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding Add_schools, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can add schools"/>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding IsSchoolRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding Visit_schools, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can visit schools"/>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding IsSchoolRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding Add_users_schools, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can add users for schools"/>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding IsSchoolRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding IsSetRolesSchools, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can set roles for schools"/>
+                </StackLayout>
+
+                <StackLayout
+                    IsVisible="{Binding IsMarketRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding View_markets, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can view outreaches"/>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding IsMarketRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding Add_markets, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can add outreaches"/>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding IsMarketRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding Visit_markets, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can visit outreaches"/>
+                </StackLayout>
+                <StackLayout
+                    IsVisible="{Binding IsMarketRolesEnabled}"
+                    Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding Add_users_markets, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can add users for outreaches"/>
+                </StackLayout>
+                <StackLayout
+                        IsVisible="{Binding IsMarketRolesEnabled}"
+                        Orientation="Horizontal">
+                    <CheckBox
+                        IsChecked="{Binding IsSetRolesMarkets, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Can set roles for outreaches"/>
+                </StackLayout>
+
+
+                        <StackLayout
+                    Orientation="Horizontal"
+                    IsVisible="{Binding IsCurrentUserAdmin}">
+                    <CheckBox
+                        IsChecked="{Binding IsAdmin, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Is admin"/>
+                </StackLayout>
+                
+                <StackLayout
+                    Orientation="Horizontal"
+                    IsVisible="{Binding IsCurrentUserAdmin}">
+                    <CheckBox
+                        IsChecked="{Binding IsTester, Mode=TwoWay}"/>
+                    <Label
+                        Padding="0,5,0,0"
+                        Text="Is tester"/>
+                </StackLayout>
+                <Editor
+                    Placeholder="Note"
+                    Keyboard="Text"
+                    Text="{Binding User.Note}"
+                    AutoSize="TextChanges"/>
+                    
+            </StackLayout>
+            </ScrollView>
+            <Button
+                Grid.Row="2"
+                StyleClass="One"
+                IsVisible="{Binding CanSave}"
+                Command="{Binding SaveCmd}"
+                Text="Save"/>
+        </Grid>
+        
+    </ContentPage.Content>
+</mvvm1:ViewBase>

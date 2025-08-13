@@ -7,9 +7,6 @@
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="HomePage">
-        <ShellContent.ToolbarItems>
-            <ToolbarItem Text="Search" IconImageSource="search_icon.png" Command="{Binding SearchCommand}" />
-        </ShellContent.ToolbarItems>
     </ShellContent>
 
     <ShellContent

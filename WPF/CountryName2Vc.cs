@@ -2,7 +2,7 @@
 using CFAN.Common.WPF;
 using ISO3166;
 
-namespace CFAN.SchoolMap.Maui.WPF
+namespace CFAN.SchoolMap.WPF
 {
     public class CountryName2Vc : IValueConverter
     {

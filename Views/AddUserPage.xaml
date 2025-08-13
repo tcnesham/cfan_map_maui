@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mvvm:ViewBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+          xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+          xmlns:mvvm="clr-namespace:CFAN.SchoolMap.MVVM;assembly=CFAN.SchoolMap.Maui"
+          x:Class="CFAN.SchoolMap.Views.AddUserPage"
+          xmlns:local="clr-namespace:CFAN.SchoolMap.Helpers"
+    xmlns:vm="clr-namespace:CFAN.DecapolisFinance.ViewModels"
+    x:DataType="vm:AddUserVM">
+          
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:RoleToStringConverter x:Key="roleToString"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <StackLayout
+            Padding="10,10,10,10">
+            <Label 
+                Text="Create a new user:" 
+                StyleClass="Header"/>
+            <Entry  
+                Placeholder="Name"
+                Keyboard="Text"
+                Text="{Binding Name}"/>
+            <Line />
+            <Entry  
+                Placeholder="Email"
+                Keyboard="Email"
+                Text="{Binding Email}"/>
+            <Entry  
+                Placeholder="Note"
+                Keyboard="Text"
+                Text="{Binding Note}"/>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="*" />
+                    <ColumnDefinition
+                        Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Entry
+                    Grid.Column="0"
+                    Placeholder="Password"
+                    Keyboard="Text"
+                    Text="{Binding Pwd}" />
+                <ImageButton
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Source="round_key_black_36dp.png"
+                    Command="{Binding GeneratePasswordCmd}"
+                    BackgroundColor="{StaticResource Primary}"
+                    Padding="5" />
+            </Grid>
+            <CollectionView
+                MinimumHeightRequest="150"
+                HeightRequest="200"
+                
+                ItemsSource="{Binding Roles}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate
+                        x:DataType="vm:RoleBoolean">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox
+                                Grid.Column="0"
+                                VerticalOptions="Center"
+                                IsChecked="{Binding Value, Mode=TwoWay}"/>
+                            <Label
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                VerticalTextAlignment="Center"
+                                Text="{Binding Key, Converter={StaticResource roleToString}}"/>
+                        </Grid>
+                        
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            
+            <Button
+                StyleClass="One"
+                Text="Create user/password change"
+                Command="{Binding AddCmd}"/>
+        </StackLayout>
+
+    </ContentPage.Content>
+</mvvm:ViewBase>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CFAN.SchoolMap.Views.MarketStatisticsPage"
+             xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
+             xmlns:wpf="clr-namespace:CFAN.SchoolMap.WPF;assembly=CFAN.SchoolMap"
+             Title="{Binding Title}">
+    
+    <ContentPage.BindingContext>
+        <vm:MarketStatisticsViewModel />
+    </ContentPage.BindingContext>
+
+       <ScrollView>
+            <StackLayout Orientation="Vertical" 
+                         Spacing="10"
+                         Margin="10,0,10,0"
+                         WidthRequest="600"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Fill">
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Report by:"
+                           VerticalOptions="Center"/>
+                    <Frame HeightRequest="30"
+                           Margin="0"
+                           Padding="0"> 
+                <Picker ItemsSource="{Binding Dims}"
+                            ItemDisplayBinding="{Binding Title}"
+                            SelectedItem="{Binding SelectedDim}"
+                            VerticalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            WidthRequest="150"
+                            HeightRequest="30"
+                        Margin="0"/>
+                        </Frame>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox IsChecked="{Binding FilterByCountry}"
+                              VerticalOptions="Center"/>
+                    <Label Text="Filter by country"
+                           VerticalOptions="Center"/>
+                </StackLayout>
+                <Frame HeightRequest="30"
+                           Margin="0"
+                           Padding="0"
+                       IsVisible="{Binding FilterByCountry}"> 
+                 <Picker ItemsSource="{Binding Countries}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedCountry}"
+                        IsEnabled="{Binding FilterByCountry}"
+                        HorizontalTextAlignment="Center"
+                        HorizontalOptions="FillAndExpand"
+                        VerticalOptions="Center"/>
+                    </Frame>
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox IsChecked="{Binding FilterByEmail}"
+                              VerticalOptions="Center"/>
+                    <Label Text="Filter by author"
+                           VerticalOptions="Center"/>
+                </StackLayout>
+                <Frame HeightRequest="30"
+                           Margin="0"
+                           Padding="0"
+                       IsVisible="{Binding FilterByEmail}"> 
+                <Picker ItemsSource="{Binding Emails}"
+                            SelectedItem="{Binding SelectedEmail}"
+                            IsEnabled="{Binding FilterByEmail}"
+                            HorizontalOptions="FillAndExpand"
+                            VerticalOptions="Center"/>
+                    </Frame>    
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox
+                        VerticalOptions="Center"
+                        IsChecked="{Binding IsAggregated}"/>
+                    <Label
+                        VerticalOptions="Center"
+                        Text="Show running total"/>
+                </StackLayout>
+            <Button Margin="0,0,0,10" Text="Show statistics"
+                        Command="{Binding RunCommand}"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White" />
+            <Frame BackgroundColor="{StaticResource Primary}" Padding="2">
+            <ListView ItemsSource="{Binding Statistics}"
+                      VerticalOptions="Start">
+                <ListView.Header>
+                    <Grid BackgroundColor="{StaticResource Primary}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                            <ColumnDefinition Width="1*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Label Text="{Binding SelectedDim.ColumnName}" HorizontalOptions="Fill"  FontAttributes="Bold"  BackgroundColor="{StaticResource Primary}" TextColor="White" HorizontalTextAlignment="Center" Margin="1"/>
+                        <Label Text="Visit" HorizontalOptions="Fill"  Grid.Column="1"   FontAttributes="Bold"   BackgroundColor="{StaticResource Primary}" TextColor="White" HorizontalTextAlignment="Center" Margin="1"/>
+                        <Label Text="Decis." HorizontalOptions="Fill"  Grid.Column="2"   FontAttributes="Bold"  BackgroundColor="{StaticResource Primary}" TextColor="White" HorizontalTextAlignment="Center" Margin="1"/>
+                        <Label Text="Atten." HorizontalOptions="Fill"  Grid.Column="3"   FontAttributes="Bold"  BackgroundColor="{StaticResource Primary}" TextColor="White" HorizontalTextAlignment="Center" Margin="1"/>
+                    </Grid>
+                </ListView.Header>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid 
+                                BackgroundColor="{StaticResource Primary}"
+                                ColumnSpacing="1" RowSpacing="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Text ="{Binding Date}" BackgroundColor="White" TextColor="{StaticResource Primary}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Margin="1" FontSize="Small"/>
+                                <Label Grid.Column="1" Text ="{Binding VisitV}" BackgroundColor="White" TextColor="{StaticResource Primary}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Margin="1" FontSize="Small"/>
+                                <Label Grid.Column="2" Text ="{Binding DecisionsV}" BackgroundColor="White" TextColor="{StaticResource Primary}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Margin="1" FontSize="Small"/>
+                                <Label Grid.Column="3" Text ="{Binding AttendanceV}" BackgroundColor="White" TextColor="{StaticResource Primary}" HorizontalOptions="Fill" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Margin="1" FontSize="Small"/>
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            </Frame>
+            <ContentView VerticalOptions="Fill"/>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

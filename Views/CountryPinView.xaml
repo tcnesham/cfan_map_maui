@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<Frame
+       AnchorX="0.5"
+       AnchorY="1.0"
+       BackgroundColor="Azure"
+       CornerRadius="10"  
+       OutlineColor="Red" 
+       Padding="0">-->
+    <Label 
+        xmlns="http://schemas.microsoft.com/dotnet/2021/maui" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+        x:Class="CFAN.SchoolMap.Views.CountryPinView"
+        WidthRequest="100" 
+        HeightRequest="40"
+          HorizontalOptions="Center" 
+          Text="Country name" 
+          FontAttributes="Bold"
+          FontSize="Title"
+          TextColor="{StaticResource Primary}"/>
+      <!--<StackLayout 
+          Orientation="Horizontal" 
+          HorizontalOptions="Center">
+            <Label 
+                Text="1 000" 
+                FontAttributes="Bold"
+                FontSize="Header"
+                TextColor="{StaticResource Primary}"  />
+        <Label 
+            FontAttributes="Bold"
+            FontSize="Header"
+            Text="/" />
+        <Label 
+            Text="25 000" 
+            FontAttributes="Bold"
+            FontSize="Header"
+            TextColor="Green"/>
+        </StackLayout>-->
+<!--</Frame>-->

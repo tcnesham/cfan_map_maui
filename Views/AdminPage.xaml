@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CFAN.SchoolMap.Views.AdminPage"
+             xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
+             xmlns:wpf="clr-namespace:CFAN.Common.WPF;assembly=CFAN.SchoolMap"
+             Title="Administration">
+    
+    <ContentPage.BindingContext>
+        <vm:AdminViewModel />
+    </ContentPage.BindingContext>
+
+    <StackLayout Orientation="Vertical" Padding="10" Spacing="10">
+
+        <Button Text="Monthly data management"
+                IsEnabled="{Binding CanCompressData}"
+                Command="{Binding StartMonthlyRutineCommand}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White" />
+        
+        <Button Text="Add new user"
+                IsEnabled="{Binding CanAddUsers}"
+                Command="{Binding AddNewUserCommand}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White" />
+
+        <Button Text="Users"
+                IsEnabled="{Binding CanSetRoles}"
+                Command="{Binding UsersCommand}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White" />
+        <!--<Button Text="Other action"
+                Command="{Binding OtherCmd}"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White" />-->
+
+    </StackLayout>
+</ContentPage>

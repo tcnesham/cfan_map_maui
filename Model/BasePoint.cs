@@ -1,5 +1,6 @@
 using CFAN.SchoolMap.Pins.States;
 using CFAN.SchoolMap.Services.PlusCodes;
+using Maui.GoogleMaps;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Attributes;
 using System.ComponentModel;
@@ -11,7 +12,7 @@ namespace CFAN.SchoolMap.Maui.Model
     {
 
         public const string PlaceNamePlaceholder = "...";
-        private Microsoft.Maui.Devices.Sensors.Location _position;
+        private Position _position;
 
         private bool _positionLoaded = false;
         private string? _name;
@@ -36,14 +37,14 @@ namespace CFAN.SchoolMap.Maui.Model
 
         public string PlusCode { get; set; }
         [Ignored]
-        public Microsoft.Maui.Devices.Sensors.Location Position
+        public Position Position
         {
             get
             {
                 if (!_positionLoaded)
                 {
-                    var googlePosition = PlusCodeHelper.ToPosition(PlusCode);
-                    _position = new Microsoft.Maui.Devices.Sensors.Location(googlePosition.Latitude, googlePosition.Longitude);
+                    _position = PlusCodeHelper.ToPosition(PlusCode);
+                    _positionLoaded = true;
                 }
                 return _position;
             }
@@ -70,12 +71,12 @@ namespace CFAN.SchoolMap.Maui.Model
         {
             PlusCode = plusCode;
             Type = type;
-            _position = new Microsoft.Maui.Devices.Sensors.Location(0, 0);
+            _position = new Position(0, 0);
         }
 
         public BasePoint() 
         { 
-            _position = new Microsoft.Maui.Devices.Sensors.Location(0, 0);
+            _position = new Position(0, 0);
         }
         public string CreateBackupKey()
         {

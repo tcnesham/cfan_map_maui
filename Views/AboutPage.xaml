@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CFAN.SchoolMap.Maui.AboutPage"
+             xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
+             xmlns:wpf="clr-namespace:CFAN.Common.WPF;assembly=CFAN.SchoolMap.Maui"
+             Title="{Binding Title}">
+    
+    <ContentPage.BindingContext>
+        <vm:AboutViewModel />
+    </ContentPage.BindingContext>
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="Accent">#96d1ff</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+       <ScrollView>
+            <StackLayout Orientation="Vertical" Padding="30,24,30,24" Spacing="10">
+                <StackLayout BackgroundColor="{StaticResource Accent}" VerticalOptions="FillAndExpand" HorizontalOptions="Fill">
+                    <Image Source="banner.jpg" HorizontalOptions="Center"  />
+                </StackLayout>
+                
+            <Label Text="CfaN RED" StyleClass="Header"/>
+            <Label Text="{Binding Version}" FontAttributes="Italic" TextColor="Gray"/>
+            <Label Text="Within this app, CfaN evangelists, bootcamp students, and volunteers from all the world can discover new schools within previously untouched regions, mark these locations, and plan visits to reach them with the Gospel of Jesus Christ. Join CfaN botcamp to get access to this app." FontSize="16" Padding="0,0,0,0"/>
+
+<Label Text="Under the direction of Evangelist Daniel Kolenda, we anticipate to reap a massive harvest within the #decadeofdoubleharvest where we plan to lead a total of 75 Million people to Jesus around the world, getting the number of total decisions to #150Million over 50 years!" FontSize="16" Padding="0,0,0,0"/>
+
+<Label Text="Through Multiplication we will see the fulfillment of this powerful decade of Holy Spirit evangelism! This App is one of the middle-grounds by which we can plan, coordinate, and measure our evangelism efforts. AFRICA SHALL BE SAVED. We will plunder hell and populate heaven for Calvary's sake! Hallelujah!" FontSize="16" Padding="0,0,0,0"/> 
+                <Button Margin="0,0,0,10" Text="Find more about CfaN!"
+                    Command="{Binding OpenWebCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White" />
+            <StackLayout
+                Padding="10,0,10,0" 
+                VerticalOptions="Center">
+                <Frame 
+                    IsVisible="{Binding Auth.IsSignIn}"
+                    HorizontalOptions="Center">
+                <StackLayout>
+                    <Label
+                        Margin="0,0,0,0"
+                        Text="You are logged in as "
+                        HorizontalOptions="Center"
+                    />
+                    <Label
+                        WidthRequest="600"
+                        Margin="0,0,0,0"
+                        Text="{Binding Auth.User.Email}"
+                        HorizontalTextAlignment="Center"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center"
+                    />
+                    <Button VerticalOptions="Center" Text="Log out" Command="{Binding LogoutCommand}"/>
+                </StackLayout>
+                </Frame>
+                <Frame 
+                    IsVisible="{Binding Auth.IsSignIn, Converter={wpf:NegationCX}}"
+                    HorizontalOptions="Center">
+                    <StackLayout>
+                        <Label
+                            StyleClass="Header"
+                            WidthRequest="450"
+                            Text="Sign in:"
+                            HorizontalTextAlignment="Center"
+                            HorizontalOptions="Center"
+                            Margin="0, 0"
+                        />
+
+                        <Entry
+                            Placeholder="E-mail"
+                            Keyboard="Email"
+                            Text="{Binding Email}"
+                        />
+
+                        <Entry
+                            Placeholder="Password"
+                            IsPassword="true"
+                            Text="{Binding Password}"
+                        />
+                        
+                        <Button
+                            VerticalOptions="Center" 
+                            Text="Log in" 
+                            Command="{Binding LoginCommand}"/>
+                        <!--<Button 
+                                StyleClass="One"
+                                Text="Forgotten password" 
+                                Command="{Binding ResetPwdCommand}"/>-->
+                    </StackLayout>
+                </Frame>
+            </StackLayout>
+            </StackLayout>
+    </ScrollView>
+</ContentPage>

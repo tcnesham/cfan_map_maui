@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CFAN.SchoolMap.Views.MarketMapPage"
+             x:DataType="vm:MarketMapVM"
+             xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
+             xmlns:googleMaps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
+             xmlns:bindings="clr-namespace:CFAN.SchoolMap.Maui.GoogleMaps.Bindings"
+             xmlns:c="clr-namespace:ISO3166;assembly=ISO3166"
+             xmlns:wpf1="clr-namespace:CFAN.SchoolMap.WPF;assembly=CFAN.SchoolMap.Maui"
+             xmlns:controls="clr-namespace:CFAN.SchoolMap.Controls;assembly=CFAN.SchoolMap.Maui"
+    Title="{Binding Title}">
+    <ContentPage.Resources>
+        <Color x:Key="Primary">#ea580c</Color>
+    </ContentPage.Resources>
+    <Shell.TitleView>
+        <Grid BackgroundColor="{StaticResource Primary}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <ImageButton
+                HorizontalOptions="End"
+                Margin="10"
+                Source="search.png" 
+                WidthRequest="32"
+                HeightRequest="32"
+                BackgroundColor="Transparent"
+                IsVisible="{Binding CanOpenSearch}"
+                Command="{Binding OpenSearchCommand}"/>
+            <ImageButton
+                HorizontalOptions="End"
+                Margin="10"
+                Grid.Column="1"
+                Source="sync.png" 
+                WidthRequest="32"
+                HeightRequest="32"
+                BackgroundColor="Transparent"
+                IsVisible="{Binding CanOpenSearch}"
+                Command="{Binding SyncCommand}"/>
+        </Grid>
+    </Shell.TitleView>
+    <ContentPage.Content>
+        <StackLayout 
+            Orientation="Vertical">
+            <Grid
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand">
+                <googleMaps:Map 
+                    BackgroundColor="White"
+                    x:Name="map"
+                    MapType="Hybrid"
+                    SelectedPin="{Binding SelectedPin}"
+                    CameraPosition="{Binding CameraPosition}"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="FillAndExpand">
+                    <googleMaps:Map.Behaviors>
+                        <bindings:BindingPinsBehavior Value="{Binding Pins}"/>
+                        <bindings:BindingPolygonsBehavior Value="{Binding Borders}"/>
+                        <!--<bindings:BindingRegionBehavior Value="{Binding CurrentRegion}"/>-->
+                        <bindings:MapLongClickedToCommandBehavior Command="{Binding MapClickedCommand}"/>
+                        <bindings:PoiClickedToCommandBehavior Command="{Binding PoiClickedCommand}"/>
+                        <bindings:UpdateCameraPositionBehavior CameraUpdate="{Binding CameraUpdate}"/>
+                        <bindings:PinDragEndToCommandBehavior Command="{Binding PositionChangedCommand}"/>
+                        <bindings:PinDoubleClickedToCommandBehavior Command="{Binding PinDoubleClickedCommand}"/>
+                        <bindings:InfoWindowClickedToCommandBehavior Command="{Binding RenamePinCommand}"/> 
+                    </googleMaps:Map.Behaviors>
+                </googleMaps:Map>
+                <StackLayout
+                    Padding="5,5,65,5"
+                    VerticalOptions="End" 
+                    HorizontalOptions="End"
+                    Orientation="Horizontal"
+                    BackgroundColor="Transparent">
+                    <RadioButton 
+                        Content="Street"  
+                        BackgroundColor="DarkGray"
+                        Padding="2,0,2,0"
+                        Opacity="0.8" 
+                        CheckedChanged="MapStreet"/>
+                    <RadioButton 
+                        IsChecked="True"
+                        Padding="2,0,2,0"
+                        BackgroundColor="DarkGray"
+                        Content="Satellite" 
+                        Opacity="0.8"
+                        CheckedChanged="MapSatellite"/>
+                </StackLayout>
+                <StackLayout
+                    Padding="5,5,5,5"
+                    VerticalOptions="Start" 
+                    HorizontalOptions="Start"
+                    Orientation="Horizontal"
+                    BackgroundColor="Transparent">
+                    <Button
+                        Padding="10,0,5,0"
+                        Command="{Binding SearchStateCommand}"
+                        Text="{Binding Country, Converter={wpf1:CountryNameCX}}"
+                        Opacity="0.8" />
+                </StackLayout>
+                <StackLayout 
+                IsVisible="{Binding IsCountriesVisible}"
+                BackgroundColor="White"
+                Padding="5,5,5,5"
+                Orientation="Horizontal"
+                VerticalOptions="Fill">
+                    <StackLayout 
+                    Padding="0,5,0,0"
+                    Orientation="Vertical">
+                        <Label 
+                            VerticalOptions="Center"
+                            StyleClass="Header"
+                            Padding="5,5,5,5"
+                            Text="Choose country:"/>
+                        <Entry 
+                            Margin="5,0,10,0" 
+                            HorizontalOptions="FillAndExpand"
+                            FontSize="22"
+                            Text="{Binding CountrySearch}"
+                            Placeholder="search here"/>
+                        <controls:MyListView
+                        Margin="10,0,10,0"
+                        HasUnevenRows="True"
+                        ItemsSource="{Binding Countries}"
+                        ItemClickCommand="{Binding CountrySelectedCommand}"
+                        SeparatorColor="{StaticResource Primary}"
+                        >
+                            <ListView.ItemTemplate>
+                                <DataTemplate
+                                    x:DataType="c:Country">
+                                    <ViewCell>
+                                        <StackLayout Padding="5">
+                                        <Label
+                                            TextColor="Black"
+                                            Margin="5"
+                                            Text="{Binding ., Converter={wpf1:CountryNameCX}}" 
+                                            VerticalTextAlignment="Center"
+                                            LineBreakMode="NoWrap"
+                                            FontAttributes="Bold"
+                                            FontSize="16"/>
+                                        <Label
+                                            TextColor="Black"
+                                            Margin="5"
+                                            IsVisible="{Binding ., Converter={wpf1:CountryNameHasTwoPartsCX}}"
+                                            Text="{Binding ., Converter={wpf1:CountryName2CX}}" 
+                                            VerticalTextAlignment="Center"
+                                            FontSize="12"
+                                            LineBreakMode="NoWrap"/>
+                                        </StackLayout>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </controls:MyListView>
+                    </StackLayout>
+                    <StackLayout 
+                    WidthRequest="70"
+                    Padding="0,5,0,0"
+                    Orientation="Vertical">
+                        <Button 
+                        Command="{Binding InitializeCommand}"
+                        Padding="5,0,5,0"
+                        VerticalOptions="Start"
+                        Text="Back"/>
+                    </StackLayout>
+                </StackLayout>
+                
+                <ScrollView 
+                    Orientation="Vertical"
+                    IsVisible="{Binding IsPlaceDetailVisible}">
+                    <StackLayout 
+                        BackgroundColor="White"
+                        Padding="5,5,5,5"
+                        Orientation="Vertical"
+                        WidthRequest="600"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button 
+                                Grid.Column="1"
+                                Text="Save"
+                                Command="{Binding SaveMarketInfoCommand}"/>
+                            <Button 
+                                Grid.Column="0"
+                                Text="Cancel"
+                                Command="{Binding CloseFromPlaceVisitCommand}"/>
+                        </Grid>
+                        <Label 
+                            StyleClass="Header"
+                            Text="Place name:"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                            <Entry 
+                                Grid.Column="0"
+                                FontSize="Subtitle"
+                                Text="{Binding SelectedPlace.Name}"/>
+                            <ImageButton
+                                Grid.Column="1"
+                                Margin="10"
+                                Source="copy.png" 
+                                WidthRequest="32"
+                                HeightRequest="32"
+                                BackgroundColor="Transparent"
+                                Command="{Binding CopyPlaceNameCommand}"/>
+                        </Grid>
+                        <StackLayout Orientation="Horizontal">
+                            <Label 
+                                VerticalOptions="Center"
+                                StyleClass="Header"
+                                Text="Date of last visit:"/>
+                            <DatePicker 
+                                VerticalOptions="Center"
+                                HorizontalOptions="EndAndExpand"
+                                FontSize="Subtitle"
+                                Date="{Binding CurrentMarketInfo.LastVisit}"/>
+                        </StackLayout>
+                        <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+                            <StackLayout Orientation="Horizontal">
+                                <RadioButton 
+                                    Content="Not done"
+                                    IsChecked="{Binding CurrentMarketInfo.IsReady, Mode=TwoWay}"
+                                    TextColor="White"
+                                    Padding="0,0,5,0"
+                                    BackgroundColor="DarkGreen"/>
+                                <RadioButton 
+                                    Content="Done"
+                                    IsChecked="{Binding CurrentMarketInfo.IsDone, Mode=TwoWay}"
+                                    TextColor="White"
+                                    Padding="0,0,5,0"
+                                    BackgroundColor="LightPink"/> 
+                                <RadioButton
+                                    Content="Do again!"
+                                    IsChecked="{Binding CurrentMarketInfo.IsDoAgain, Mode=TwoWay}"
+                                    TextColor="White"
+                                    Padding="0,0,5,0"
+                                    BackgroundColor="Purple" />
+                                <RadioButton 
+                                    Content="Don't go!"
+                                    IsChecked="{Binding CurrentMarketInfo.IsDontGo, Mode=TwoWay}"
+                                    TextColor="White"
+                                    Padding="0,0,5,0"
+                                    BackgroundColor="Black"/>
+                            </StackLayout>
+                        </ScrollView>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition
+                                    Width="*" />
+                                <ColumnDefinition
+                                    Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label
+                                Text="Is crusade field" />
+                            <CheckBox
+                                Grid.Column="1"
+                                IsChecked="{Binding CurrentMarketInfo.IsOpenField}" />
+                        </Grid>
+                        
+                        <Label 
+                            StyleClass="Header"
+                            Text="Note:"/>
+                        
+                        <Editor
+                            AutoSize="TextChanges"
+                            MaxLength="1000"
+                            Keyboard="Chat"
+                            Placeholder="Describe the place here"
+                            Text="{Binding CurrentNote}"/>
+                        
+
+                        <Label
+                            StyleClass="Header"
+                            Text="Previous notes:" />
+                        
+                        <Label
+                            Text="{Binding CurrentMarketInfo.Note}"/>
+                        
+
+                    </StackLayout>
+                </ScrollView>
+                
+            </Grid>
+            <Label 
+                Text="{Binding Message}"
+                IsVisible="{Binding HasMessage}"
+                HorizontalOptions="CenterAndExpand"
+                TextColor="Black"
+                FontSize="18"
+                Margin="0,0,0,0"
+                VerticalOptions="End"/>
+            <Grid 
+                IsVisible="{Binding IsActionsVisible}"
+                Margin="0,0,0,0"
+                Padding="5,0,5,0"
+                HorizontalOptions="Fill"
+                VerticalOptions="End">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button
+                    Grid.Column="0"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Find markets"
+                    IsEnabled="{Binding CanAddPlaces}"
+                    Command="{Binding SearchPlacesCommand}"/>
+                <Button
+                    Grid.Column="1"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Plan visits"
+                    IsEnabled="{Binding CanPlanVisit}"
+                    Command="{Binding PlanStateCommand}"/>
+                <Button
+                    Grid.Column="2"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Visit markets"
+                    IsEnabled="{Binding CanVisitPlace}"
+                    Command="{Binding VisitStateCommand}"/>
+            </Grid>
+            <Grid 
+                IsVisible="{Binding IsSearchVisible}"
+                Margin="0,0,0,0"
+                Padding="5,0,5,0"
+                HorizontalOptions="Fill"
+                VerticalOptions="End">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button
+                    Grid.Column="0"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Search"
+                    Command="{Binding SearchCommand}"/>
+                <Button
+                    Grid.Column="0"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Import"
+                    IsVisible="{Binding CanImport}"
+                    Command="{Binding ImportPlaceCommand}"/>
+                <Button
+                    Grid.Column="1"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Next"
+                    IsVisible="{Binding IsNextEnabled}"
+                    Command="{Binding NextPlaceCommand}"/>
+                <Button
+                    Grid.Column="1"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Save" 
+                    IsVisible="{Binding CanSavePlace}"
+                    Command="{Binding SavePlaceCommand}"/>
+                <Button
+                    Grid.Column="2"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Ignore"
+                    IsVisible="{Binding IsPlaceSelected}"
+                    Command="{Binding IgnorePlaceCommand}"/>
+                <Button
+                    Grid.Column="3"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0" 
+                    Text="Done"
+                    Command="{Binding InitializeCommand}"/>
+            </Grid>
+            <Grid 
+                IsVisible="{Binding IsPlanningVisible}"
+                Margin="0,0,0,0"
+                HorizontalOptions="Fill" 
+                VerticalOptions="End">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Picker 
+                    Title="Select your team"
+                    TitleColor="Red"
+                    Margin="5,0,0,5"
+                    HorizontalTextAlignment="Center"
+                    ItemsSource="{Binding Teams}"
+                    SelectedItem="{Binding SelectedTeam, Mode=TwoWay}"
+                    />
+                <Button
+                    Grid.Column="1"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Mark" 
+                    IsVisible="{Binding IsPlaceSelected}"
+                    Command="{Binding MarkPlaceCommand}"/>
+                <Button
+                    Grid.Column="2"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Unmark"
+                    IsVisible="{Binding IsPlaceSelected}"
+                    Command="{Binding UnmarkPlaceCommand}"/>
+                <Button
+                    Grid.Column="3"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0" 
+                    Text="Done"
+                    Command="{Binding InitializeCommand}"/>
+            </Grid>
+            <Grid 
+                IsVisible="{Binding IsVisitingVisible}"
+                Margin="0,0,0,0"
+                HorizontalOptions="Fill" 
+                VerticalOptions="End">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Picker
+                    Margin="5,0,0,5"
+                    Title="Select your team"
+                    TitleColor="Red"
+                    HorizontalTextAlignment="Center"
+                    ItemsSource="{Binding Teams}"
+                    SelectedItem="{Binding SelectedTeam, Mode=TwoWay}"/>
+                <Button
+                    Grid.Column="1"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Navigate" 
+                    IsVisible="{Binding IsPlaceSelected}"
+                    Command="{Binding NavigateToSelectedCommand}"/>
+                <Button
+                    Grid.Column="2"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0"
+                    Text="Visited" 
+                    IsVisible="{Binding IsPlaceSelected}"
+                    Command="{Binding PlaceVisitedCommand}"/>
+                <Button
+                    Grid.Column="3"
+                    Margin="0,0,0,5"
+                    Padding="5,0,5,0" 
+                    Text="Done"
+                    Command="{Binding InitializeCommand}"/>
+            </Grid>
+        </StackLayout>
+    </ContentPage.Content>
+
+
+</ContentPage>

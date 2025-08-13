@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mvvm1:ViewBase xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mvvm1="clr-namespace:CFAN.SchoolMap.MVVM;assembly=CFAN.SchoolMap.Maui"
+             xmlns:controls1="clr-namespace:CFAN.SchoolMap.Controls;assembly=CFAN.SchoolMap.Maui"
+             x:Class="CFAN.SchoolMap.Views.RolesPage"
+             BackgroundColor="{StaticResource BackgroundColor}">
+    <ContentPage.Content>
+        <Grid
+            Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Entry
+                Grid.Row="0"
+                Placeholder="Search"
+                Keyboard="Text"
+                Text="{Binding SearchString}"/>
+            <Label
+                Grid.Row="1"
+                StyleClass="Header"
+                Text="Users:"/>
+            <controls1:MyListView
+                Grid.Row="2"
+                ItemsSource="{Binding Items}"
+                ItemClickCommand="{Binding ItemClickCmd}"
+                SeparatorColor="{StaticResource Primary}"
+                HasUnevenRows="True"
+                BackgroundColor="{StaticResource BackgroundColor}">          
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout
+                                Spacing="0">
+                                <Label
+                                    TextColor="Black"
+                                    Margin="0,8,0,0"
+                                    Text="{Binding Name}"
+                                    FontAttributes="Bold" />
+                                <Label
+                                    TextColor="Black"
+                                    Text="{Binding Email}"/>
+                                <Label
+                                    TextColor="Black"
+                                    Margin="0,0,0,8"
+                                    Text="{Binding RolesAsString}"
+                                    FontAttributes="Italic" />
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </controls1:MyListView>
+        </Grid>
+    </ContentPage.Content>
+</mvvm1:ViewBase>

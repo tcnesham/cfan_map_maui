@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:CFAN.SchoolMap.ViewModels;assembly=CFAN.SchoolMap.Maui"
+             xmlns:controls="clr-namespace:CFAN.SchoolMap.Controls;assembly=CFAN.SchoolMap.Maui"
+             x:Class="CFAN.SchoolMap.Views.SearchPage">
+    <ContentPage.BindingContext>
+        <viewModels:SearchViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <Grid Padding="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Entry
+                    Placeholder="Search here"
+                    Text="{Binding Text, Mode=TwoWay}"/>
+                <ImageButton
+                    Grid.Column="1"
+                    Margin="10"
+                    Source="paste.png" 
+                    WidthRequest="32"
+                    HeightRequest="32"
+                    BackgroundColor="Transparent"
+                    Command="{Binding PasteCommand}"/>
+            </Grid>
+            <StackLayout
+                IsVisible="{Binding HasNoResult}"
+                Grid.Row="1">
+                <Label 
+                    TextColor="Gray"
+                    Text="- write any text to find places in current country using Google"/>
+                <Label 
+                    TextColor="Gray"
+                    Text="- write case sensitive beginning of the school name to find a school in CfaN Red database"/>
+                <Label 
+                    TextColor="Gray"
+                    Text="- write at least 4 letters to start the search"/>
+                <Label 
+                    TextColor="Gray"
+                    Text="- search works only when you are online"/>
+            </StackLayout>
+            <controls:MyListView
+                IsVisible="{Binding HasResult}"
+                Grid.Row="1"
+                HasUnevenRows="True"
+                ItemsSource="{Binding Predictions}"
+                ItemClickCommand="{Binding PlaceClickedCommand}"
+                >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell >
+                            <StackLayout Padding="5">
+                                <Label 
+                                    Text="{Binding Title}" 
+                                    FontAttributes="Bold"
+                                    FontSize="12"
+                                    LineBreakMode="NoWrap"/>
+                                <Label 
+                                    Text="{Binding Subtitle}"
+                                    FontSize="12"
+                                    LineBreakMode="NoWrap"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </controls:MyListView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
