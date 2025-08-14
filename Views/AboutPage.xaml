@@ -55,7 +55,7 @@
                 </StackLayout>
                 </Frame>
                 <Frame 
-                    IsVisible="True"
+                    IsVisible="{Binding Auth.IsSignIn, Converter={wpf:NegationCX}}"
                     HorizontalOptions="Center">
                     <StackLayout>
                         <Label
