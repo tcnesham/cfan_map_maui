@@ -66,36 +66,28 @@
     </FlyoutItem>
 
     <FlyoutItem
-        Title="School Map"
-        IsVisible="{Binding Repository.HasSchoolRoles}">
+        Title="School Map">
         <ShellContent
             Route="SchoolMapPage"
-            ContentTemplate="{DataTemplate views:SchoolMapPage}"
-            IsVisible="{Binding Repository.HasSchoolRoles}"/>
+            ContentTemplate="{DataTemplate views:SchoolMapPage}"/>
             </FlyoutItem>
     <FlyoutItem
-        Title="School Statistics"
-        IsVisible="{Binding Repository.HasSchoolRoles}">
+        Title="School Statistics">
         <ShellContent
             Route="SchoolStatisticsPage"
-            ContentTemplate="{DataTemplate views:SchoolStatisticsPage}"
-            IsVisible="{Binding Repository.HasSchoolRoles}"/>
+            ContentTemplate="{DataTemplate views:SchoolStatisticsPage}"/>
     </FlyoutItem>
     <FlyoutItem
-        Title="Outreach Map"
-        IsVisible="{Binding Repository.HasMarketRoles}">
+        Title="Outreach Map">
         <ShellContent
             Route="MarketMapPage"
-            ContentTemplate="{DataTemplate views:MarketMapPage}"
-            IsVisible="{Binding Repository.HasMarketRoles}"/>
+            ContentTemplate="{DataTemplate views:MarketMapPage}"/>
     </FlyoutItem>
     <FlyoutItem
-        Title="Administration"
-        IsVisible="{Binding Repository.HasAdministrationRoles}">
+        Title="Administration">
         <ShellContent
             Route="AdminPage"
-            ContentTemplate="{DataTemplate views:AdminPage}"
-            IsVisible="{Binding Repository.HasAdministrationRoles}"/>
+            ContentTemplate="{DataTemplate views:AdminPage}"/>
     </FlyoutItem>
 
     <!--<MenuItem Text="Calendar"

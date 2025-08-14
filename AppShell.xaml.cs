@@ -4,6 +4,8 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.ApplicationModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.Messaging;
+using CFAN.SchoolMap.Maui.Services.Auth;
 
 namespace CFAN.SchoolMap.Maui;
 
@@ -24,6 +26,11 @@ public partial class AppShell : Shell, INotifyPropertyChanged
 		_schoolStatsItem = Items.OfType<FlyoutItem>().FirstOrDefault(x => x.Title == "School Statistics");
 		_outreachMapItem = Items.OfType<FlyoutItem>().FirstOrDefault(x => x.Title == "Outreach Map");
 		_administrationItem = Items.OfType<FlyoutItem>().FirstOrDefault(x => x.Title == "Administration");
+		
+		// Subscribe to authentication and role change messages
+		WeakReferenceMessenger.Default.Register<CurrentUserChangedMessage>(this, (r, m) => RefreshItemVisibility());
+		ViewModels.Messaging.Subscribe(this, ViewModels.Message.MyRolesChanged, RefreshItemVisibility);
+		ViewModels.Messaging.Subscribe(this, ViewModels.Message.RolesChanged, RefreshItemVisibility);
 		
 		// Initialize asynchronously to avoid blocking the constructor
 		_ = InitializeAsync();
@@ -85,11 +92,16 @@ public partial class AppShell : Shell, INotifyPropertyChanged
 			bool hasMarketRoles = _repository?.HasMarketRoles ?? false;
 			bool hasAdministrationRoles = _repository?.HasAdministrationRoles ?? false;
 			
+			// Debug logging
+			System.Diagnostics.Debug.WriteLine($"UpdateItemVisibility - School: {hasSchoolRoles}, Market: {hasMarketRoles}, Admin: {hasAdministrationRoles}");
+			System.Diagnostics.Debug.WriteLine($"Repository: {_repository != null}, CurrentUser: {_repository?.CurrentUser?.Email}");
+			
 			if (_schoolMapItem != null)
 			{
 				_schoolMapItem.IsVisible = hasSchoolRoles;
 				if (_schoolMapItem.Items.Count > 0)
 					_schoolMapItem.Items[0].IsVisible = hasSchoolRoles;
+				System.Diagnostics.Debug.WriteLine($"School Map Item IsVisible: {_schoolMapItem.IsVisible}");
 			}
 			
 			if (_schoolStatsItem != null)
@@ -97,6 +109,7 @@ public partial class AppShell : Shell, INotifyPropertyChanged
 				_schoolStatsItem.IsVisible = hasSchoolRoles;
 				if (_schoolStatsItem.Items.Count > 0)
 					_schoolStatsItem.Items[0].IsVisible = hasSchoolRoles;
+				System.Diagnostics.Debug.WriteLine($"School Stats Item IsVisible: {_schoolStatsItem.IsVisible}");
 			}
 			
 			if (_outreachMapItem != null)
@@ -104,6 +117,7 @@ public partial class AppShell : Shell, INotifyPropertyChanged
 				_outreachMapItem.IsVisible = hasMarketRoles;
 				if (_outreachMapItem.Items.Count > 0)
 					_outreachMapItem.Items[0].IsVisible = hasMarketRoles;
+				System.Diagnostics.Debug.WriteLine($"Outreach Map Item IsVisible: {_outreachMapItem.IsVisible}");
 			}
 			
 			if (_administrationItem != null)
@@ -111,12 +125,42 @@ public partial class AppShell : Shell, INotifyPropertyChanged
 				_administrationItem.IsVisible = hasAdministrationRoles;
 				if (_administrationItem.Items.Count > 0)
 					_administrationItem.Items[0].IsVisible = hasAdministrationRoles;
+				System.Diagnostics.Debug.WriteLine($"Administration Item IsVisible: {_administrationItem.IsVisible}");
 			}
+			
+			// Also trigger property change notifications for any binding that might still exist
+			OnPropertyChanged(nameof(HasSchoolRoles));
+			OnPropertyChanged(nameof(HasMarketRoles));
+			OnPropertyChanged(nameof(HasAdministrationRoles));
 		}
 		catch (Exception ex)
 		{
 			System.Diagnostics.Debug.WriteLine($"Failed to update item visibility: {ex.Message}");
 		}
+	}
+	
+	// Public method to refresh visibility from external calls (e.g., after login)
+	public void RefreshItemVisibility()
+	{
+		System.Diagnostics.Debug.WriteLine("RefreshItemVisibility called");
+		MainThread.BeginInvokeOnMainThread(async () =>
+		{
+			// Force refresh the current user data from repository
+			if (_repository != null)
+			{
+				try
+				{
+					var currentUser = await _repository.GetCurrentUser();
+					System.Diagnostics.Debug.WriteLine($"Refreshed current user: {currentUser?.Email}");
+				}
+				catch (Exception ex)
+				{
+					System.Diagnostics.Debug.WriteLine($"Failed to refresh current user: {ex.Message}");
+				}
+			}
+			
+			UpdateItemVisibility();
+		});
 	}
 	
 	private void OnRepositoryPropertyChanged(object? sender, PropertyChangedEventArgs e)

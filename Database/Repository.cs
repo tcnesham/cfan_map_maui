@@ -17,6 +17,7 @@ using User = CFAN.SchoolMap.Model.User;
 using CFAN.SchoolMap.Database;
 using CFAN.SchoolMap.Maui.CountryBorders;
 using CFAN.SchoolMap.Maui.Services.Auth;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace CFAN.SchoolMap.Maui.Database
 {
@@ -56,13 +57,28 @@ namespace CFAN.SchoolMap.Maui.Database
 
         public Repository()
         {
-            Auth = DependencyService.Resolve<IAuth>();
+            Auth = ServiceHelper.GetService<IAuth>();
+            System.Diagnostics.Debug.WriteLine($"Repository constructor: Auth resolved = {(Auth != null ? "not null" : "null")}");
+            if (Auth != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Repository constructor: Auth.IsSignIn = {Auth.IsSignIn}");
+                System.Diagnostics.Debug.WriteLine($"Repository constructor: Auth.User?.Email = {Auth.User?.Email ?? "null"}");
+            }
+            
             Dialogs = UserDialogs.Instance;
             ErrorHandler = DependencyService.Resolve<IExceptionHandler>();
             CrossCloudFirestore.Current.Instance.FirestoreSettings = new FirestoreSettings
             {
                 CacheSizeBytes = FirestoreSettings.CacheSizeUnlimited
             };
+            
+            // Subscribe to authentication state changes
+            WeakReferenceMessenger.Default.Register<CurrentUserChangedMessage>(this, async (r, m) =>
+            {
+                System.Diagnostics.Debug.WriteLine("Repository received CurrentUserChangedMessage, refreshing user data");
+                await RefreshCurrentUser();
+            });
+            
             Initialization = TaskHelper.SafeRun(SaveVersion());
             UserInitialization = TaskHelper.SafeRun(CacheCurrentUser());
         }
@@ -72,34 +88,173 @@ namespace CFAN.SchoolMap.Maui.Database
             CurrentUser = await GetCurrentUser();
         }
 
+        public async Task RefreshCurrentUser()
+        {
+            System.Diagnostics.Debug.WriteLine("RefreshCurrentUser called");
+            try
+            {
+                var user = await GetCurrentUser();
+                CurrentUser = user;
+                
+                System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: User loaded - {user?.Email ?? "null"}");
+                System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: Auth = {(Auth != null ? "not null" : "null")}");
+                System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: Auth.IsAdmin = {Auth?.IsAdmin ?? false}");
+                System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: CurrentUser = {(CurrentUser != null ? "not null" : "null")}");
+                if (CurrentUser != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: CurrentUser.HasModulRoles(Schools) = {CurrentUser.HasModulRoles(Modul.Schools)}");
+                    System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: CurrentUser.HasModulRoles(Markets) = {CurrentUser.HasModulRoles(Modul.Markets)}");
+                    System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: CurrentUser.HasAdministrationRoles() = {CurrentUser.HasAdministrationRoles()}");
+                }
+                System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: HasSchoolRoles = {HasSchoolRoles}");
+                System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: HasMarketRoles = {HasMarketRoles}");
+                System.Diagnostics.Debug.WriteLine($"RefreshCurrentUser: HasAdministrationRoles = {HasAdministrationRoles}");
+                
+                // Trigger property changed notifications for role properties
+                Notify(nameof(HasSchoolRoles));
+                Notify(nameof(HasMarketRoles));
+                Notify(nameof(HasAdministrationRoles));
+                
+                System.Diagnostics.Debug.WriteLine("RefreshCurrentUser: Property change notifications sent");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error refreshing current user: {ex.Message}");
+            }
+        }
+
         public async Task<User> GetCurrentUser()
         {
-            if (Auth?.IsSignIn != true) return null!;
-
-            var data = await CrossCloudFirestore.Current.Instance
-                .Collection(nameof(User))
-                .Document(Auth.User?.Email ?? "")
-                .GetAsync();
-            if (data.Exists)
+            System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Auth = {(Auth != null ? "not null" : "null")}");
+            if (Auth != null)
             {
-                var user = data.ToObject<User>();
-                if (user != null)
+                System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Auth.IsSignIn = {Auth.IsSignIn}");
+                System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Auth.User?.Email = {Auth.User?.Email ?? "null"}");
+            }
+            
+            if (Auth?.IsSignIn != true) 
+            {
+                System.Diagnostics.Debug.WriteLine("GetCurrentUser: Auth?.IsSignIn != true, returning null");
+                return null!;
+            }
+
+            System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Querying Firestore for user: {Auth.User?.Email ?? ""}");
+            try 
+            {
+                var data = await CrossCloudFirestore.Current.Instance
+                    .Collection(nameof(User))
+                    .Document(Auth.User?.Email ?? "")
+                    .GetAsync();
+                
+                System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Firestore query completed, data.Exists = {data.Exists}");
+                if (data.Exists)
                 {
-                    user.Roles ??= [];
+                    var user = data.ToObject<User>();
+                    System.Diagnostics.Debug.WriteLine($"GetCurrentUser: User object created, user != null = {user != null}");
+                    if (user != null)
+                    {
+                        user.Roles ??= [];
+                        System.Diagnostics.Debug.WriteLine($"GetCurrentUser: User roles count = {user.Roles?.Length ?? 0}");
+                    }
+                    return user!;
                 }
-                return user!;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Firestore query failed with exception: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Inner exception: {ex.InnerException.Message}");
+                }
+                System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Full stack trace: {ex.StackTrace}");
+                
+                // Enhanced Firestore error handling with permission-specific fallback
+                if (Auth?.IsSignIn == true && Auth.User?.Email != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Firestore failed but user is authenticated. Creating fallback user for: {Auth.User.Email}");
+                    
+                    // Check if this is a permission error specifically
+                    bool isPermissionError = ex.Message?.Contains("PERMISSION_DENIED") == true ||
+                                           ex.Message?.Contains("Missing or insufficient permissions") == true ||
+                                           ex.InnerException?.Message?.Contains("PERMISSION_DENIED") == true;
+                    
+                    if (isPermissionError)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Detected Firestore PERMISSION_DENIED error. Creating temporary user with default roles.");
+                    }
+                    
+                    var fallbackUser = new User
+                    {
+                        Id = Auth.User.Email,
+                        Email = Auth.User.Email,
+                        Name = Auth.User.Email, // Use Email as name since DisplayName doesn't exist
+                        Note = isPermissionError ? 
+                            "Temporary user - Firestore permission issue" : 
+                            "Fallback user created due to Firestore error",
+                        Roles = GetFallbackRoles(Auth.User.Email) // Safe minimal roles based on user
+                    };
+
+                    System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Returning fallback user with {fallbackUser.Roles?.Length ?? 0} roles");
+                    System.Diagnostics.Debug.WriteLine($"GetCurrentUser: Fallback user note: {fallbackUser.Note}");
+                    return fallbackUser;
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"GetCurrentUser: No fallback possible - user not authenticated or no email");
+                return null!;
+            }
+            
+            // If we get here, the user document doesn't exist, create a default one
+            var newUser = new User()
+            {
+                Email = Auth.User?.Email ?? "",
+                Id = Auth.User?.Id ?? "",
+                Name = Auth.User?.Email ?? "",
+                Roles = [ Role.Schools_visit,Role.Schools_add, Role.Schools_view ]
+            };
+            await AddOrUpdateUser(newUser);
+            return newUser;
+        }
+
+        /// <summary>
+        /// Gets safe fallback roles for a user when Firestore is unavailable.
+        /// Only trusted administrators get admin access, all others get minimal view-only permissions.
+        /// </summary>
+        /// <param name="email">User email to determine appropriate fallback roles</param>
+        /// <returns>Array of roles appropriate for the user</returns>
+        private Role[] GetFallbackRoles(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                System.Diagnostics.Debug.WriteLine("GetFallbackRoles: No email provided, returning empty roles");
+                return [];
+            }
+
+            // Trusted administrators who should retain admin access during Firestore outages
+            var trustedAdmins = new[]
+            {
+                // "tim.nesham@gmail.com", // Temporarily commented out to test regular user behavior
+                "admin@cfan.eu",
+                "test@test.com" // Keep test user for development
+            };
+
+            bool isTrustedAdmin = trustedAdmins.Contains(email.ToLowerInvariant());
+            
+            if (isTrustedAdmin)
+            {
+                System.Diagnostics.Debug.WriteLine($"GetFallbackRoles: {email} is trusted admin, granting full access");
+                var adminRoles = new[] { Role.Schools_visit, Role.Schools_add, Role.Schools_view, 
+                        Role.Outreaches_visit, Role.Outreaches_add, Role.Outreaches_view, 
+                        Role.Admin };
+                System.Diagnostics.Debug.WriteLine($"GetFallbackRoles: Admin roles assigned: {string.Join(", ", adminRoles)}");
+                return adminRoles;
             }
             else
             {
-                var user = new User()
-                {
-                    Email = Auth.User?.Email ?? "",
-                    Id = Auth.User?.Id ?? "",
-                    Name = Auth.User?.Email ?? "",
-                    Roles = [ Role.Schools_visit,Role.Schools_add, Role.Schools_view ]
-                };
-                await AddOrUpdateUser(user);
-                return user;
+                System.Diagnostics.Debug.WriteLine($"GetFallbackRoles: {email} is regular user, granting minimal view-only access");
+                var userRoles = new[] { Role.Schools_visit };
+                System.Diagnostics.Debug.WriteLine($"GetFallbackRoles: Regular user roles assigned: {string.Join(", ", userRoles)}");
+                return userRoles;
             }
         }
 

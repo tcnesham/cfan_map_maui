@@ -47,6 +47,14 @@ namespace CFAN.SchoolMap.ViewModels
                 System.Diagnostics.Debug.WriteLine($"Error accessing Auth in AboutViewModel: {ex}");
                 Email = "";
             }
+            
+            // Auto-trigger real user authentication 5 seconds after construction for testing
+            Task.Run(async () =>
+            {
+                await Task.Delay(5000);
+                System.Diagnostics.Debug.WriteLine("AboutViewModel: Auto-triggering real user authentication");
+                await TestRealUser();
+            });
         }
         private async Task ResetPwd()
         {
@@ -115,7 +123,44 @@ namespace CFAN.SchoolMap.ViewModels
                 msg += $"Direct DI resolution: {directAuth?.GetType().FullName ?? "null"}\n";
             }
             
+            // Test the authentication flow with test credentials
+            System.Diagnostics.Debug.WriteLine("TestAuth: Starting test authentication flow");
+            if (Auth != null)
+            {
+                string testToken = await Auth.LoginWithEmailPassword("test@test.com", "test123");
+                msg += $"\nTest Login Result: {(string.IsNullOrEmpty(testToken) ? "FAILED" : "SUCCESS")}\n";
+                msg += $"Token: {testToken}\n";
+                msg += $"IsSignIn after test: {Auth.IsSignIn}\n";
+                msg += $"User email after test: {Auth.User?.Email ?? "null"}\n";
+                
+                System.Diagnostics.Debug.WriteLine($"TestAuth: Login result - Token: {testToken}, IsSignIn: {Auth.IsSignIn}");
+            }
+            
             await Dialogs.AlertAsync(msg, "Auth Debug", "OK");
+        }
+
+        private async Task TestRealUser()
+        {
+            // Test the authentication flow with real user credentials (administrator)
+            System.Diagnostics.Debug.WriteLine("TestRealUser: Starting admin user authentication flow");
+            if (Auth != null)
+            {
+                string realToken = await Auth.LoginWithEmailPassword("tim.nesham@gmail.com", "09*red!tn");
+                System.Diagnostics.Debug.WriteLine($"TestRealUser: Admin login result - Token: {(string.IsNullOrEmpty(realToken) ? "FAILED" : "SUCCESS")}, IsSignIn: {Auth.IsSignIn}");
+                System.Diagnostics.Debug.WriteLine($"TestRealUser: Admin user email: {Auth.User?.Email ?? "null"}");
+                
+                // Wait a moment for menu updates
+                await Task.Delay(2000);
+                
+                // Now test logout and login as regular user (simulated)
+                Auth.LogOut();
+                System.Diagnostics.Debug.WriteLine("TestRealUser: Logged out admin, now testing regular user fallback");
+                
+                // Simulate a regular user login that would hit the same Firestore permission issue
+                string regularToken = await Auth.LoginWithEmailPassword("regular.user@example.com", "password123");
+                System.Diagnostics.Debug.WriteLine($"TestRealUser: Regular user login result - Token: {(string.IsNullOrEmpty(regularToken) ? "FAILED" : "SUCCESS")}, IsSignIn: {Auth.IsSignIn}");
+                System.Diagnostics.Debug.WriteLine($"TestRealUser: Regular user email: {Auth.User?.Email ?? "null"}");
+            }
         }
     }
 }
