@@ -944,9 +944,9 @@ namespace CFAN.SchoolMap.Maui.Database
 
         private bool CheckTester()
         {
-            if (Auth.IsTester)
+            if (Auth?.IsTester == true)
             {
-                Dialogs.Toast("You are a tester!\n Your changes will not be stored into the database.");
+                Dialogs?.Toast("You are a tester!\n Your changes will not be stored into the database.");
                 return true;
             }
 
@@ -961,7 +961,7 @@ namespace CFAN.SchoolMap.Maui.Database
             var collection = typeof(TPoint).Name;
 
             place.Country = countryCode;
-            place.ChangedBy = Auth.User?.Email ?? "";
+            place.ChangedBy = Auth?.User?.Email ?? string.Empty;
             await CrossCloudFirestore.Current
                 .Instance
                 .Collection(collection)
@@ -1015,7 +1015,7 @@ namespace CFAN.SchoolMap.Maui.Database
             if (CheckTester()) return;
 
             visit.Country = countryCode;
-            if (!isUpdate) visit.ChangedBy = Auth.User?.Email ?? "";
+            if (!isUpdate) visit.ChangedBy = Auth?.User?.Email ?? string.Empty;
             if (!visit.IsAllowed)
             {
                 visit.NOfChildren = 0;
@@ -1054,7 +1054,7 @@ namespace CFAN.SchoolMap.Maui.Database
             if (CheckTester()) return;
             
             marketInfo.Country = countryCode;
-            if (!isUpdate) marketInfo.ChangedBy = Auth.User?.Email ?? "";
+            if (!isUpdate) marketInfo.ChangedBy = Auth?.User?.Email ?? "";
             
             await CrossCloudFirestore.Current
                 .Instance
@@ -1113,11 +1113,11 @@ namespace CFAN.SchoolMap.Maui.Database
             Debug.WriteLine($"___DEBUG: {noBorderCount} of {totalCount} countries don't have borders.");
         }
 
-        public bool HasSchoolRoles => Auth.IsAdmin || (CurrentUser?.HasModulRoles(Modul.Schools) ?? false);
+        public bool HasSchoolRoles => (Auth?.IsAdmin ?? false) || (CurrentUser?.HasModulRoles(Modul.Schools) ?? false);
 
-        public bool HasMarketRoles => Auth.IsAdmin || (CurrentUser?.HasModulRoles(Modul.Markets) ?? false);
+        public bool HasMarketRoles => (Auth?.IsAdmin ?? false) || (CurrentUser?.HasModulRoles(Modul.Markets) ?? false);
 
-        public bool HasAdministrationRoles => Auth.IsAdmin || (CurrentUser?.HasAdministrationRoles() ?? false);
+        public bool HasAdministrationRoles => (Auth?.IsAdmin ?? false) || (CurrentUser?.HasAdministrationRoles() ?? false);
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

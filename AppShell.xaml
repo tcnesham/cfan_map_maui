@@ -52,7 +52,7 @@
     </Shell.Resources>
 
     <Shell.FlyoutHeader>
-        <StackLayout HeightRequest="50" 
+        <StackLayout HeightRequest="100" 
                      Padding="50,10,50,10">
             <Image 
                 Source="logo.png"/>
@@ -66,28 +66,36 @@
     </FlyoutItem>
 
     <FlyoutItem
-        Title="School Map">
+        Title="School Map"
+        IsVisible="{Binding Repository.HasSchoolRoles}">
         <ShellContent
             Route="SchoolMapPage"
-            ContentTemplate="{DataTemplate views:SchoolMapPage}"/>
+            ContentTemplate="{DataTemplate views:SchoolMapPage}"
+            IsVisible="{Binding Repository.HasSchoolRoles}"/>
             </FlyoutItem>
     <FlyoutItem
-        Title="School Statistics">
+        Title="School Statistics"
+        IsVisible="{Binding Repository.HasSchoolRoles}">
         <ShellContent
             Route="SchoolStatisticsPage"
-            ContentTemplate="{DataTemplate views:SchoolStatisticsPage}"/>
+            ContentTemplate="{DataTemplate views:SchoolStatisticsPage}"
+            IsVisible="{Binding Repository.HasSchoolRoles}"/>
     </FlyoutItem>
     <FlyoutItem
-        Title="Outreach Map">
+        Title="Outreach Map"
+        IsVisible="{Binding Repository.HasMarketRoles}">
         <ShellContent
             Route="MarketMapPage"
-            ContentTemplate="{DataTemplate views:MarketMapPage}" />
+            ContentTemplate="{DataTemplate views:MarketMapPage}"
+            IsVisible="{Binding Repository.HasMarketRoles}"/>
     </FlyoutItem>
     <FlyoutItem
-        Title="Administration">
+        Title="Administration"
+        IsVisible="{Binding Repository.HasAdministrationRoles}">
         <ShellContent
             Route="AdminPage"
-            ContentTemplate="{DataTemplate views:AdminPage}"/>
+            ContentTemplate="{DataTemplate views:AdminPage}"
+            IsVisible="{Binding Repository.HasAdministrationRoles}"/>
     </FlyoutItem>
 
     <!--<MenuItem Text="Calendar"
