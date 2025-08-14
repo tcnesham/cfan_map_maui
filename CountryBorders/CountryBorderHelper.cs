@@ -6,12 +6,12 @@ using CFAN.SchoolMap.Maui.Model;
 using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using ISO3166;
-using Maui.GoogleMaps;
+using CFAN.SchoolMap.Maui.GoogleMaps;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Polygon = GeoJSON.Net.Geometry.Polygon;
-using Position = Maui.GoogleMaps.Position;
+using Position = CFAN.SchoolMap.Maui.GoogleMaps.Position;
 
 namespace CFAN.SchoolMap.Maui.CountryBorders
 {

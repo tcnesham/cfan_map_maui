@@ -10,8 +10,8 @@ using CFAN.SchoolMap.Services.Places;
 using CFAN.SchoolMap.Services.PlusCodes;
 using System.Timers;
 using CFAN.SchoolMap.Maui.Model;
-using Pin = Maui.GoogleMaps.Pin;
-using PinType = Maui.GoogleMaps.PinType;
+using Pin = CFAN.SchoolMap.Maui.GoogleMaps.Pin;
+using PinType = CFAN.SchoolMap.Maui.GoogleMaps.PinType;
 using CFAN.SchoolMap.Maui.CountryBorders;
 
 using Timer = System.Timers.Timer;

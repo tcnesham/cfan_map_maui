@@ -2,13 +2,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="232" android:versionName="2.0.32.0" package="com.cfan.schoolmap" android:installLocation="auto">
   <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="35" />
   <application android:label="CFAN.SchoolMap.Maui.Android" android:theme="@style/MainTheme" android:usesCleartextTraffic="true">
-    <uses-library android:name="org.​apache.http.legacy" android:required="false" />
+    <uses-library android:name="org.​apache.http.legacy" android:required="false" android:enableOnBackInvokedCallback="true" />
+    
+    <!-- Google Play Services metadata -->
+    <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+    
+    <!-- Google Maps API key -->
+    <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAQGTbadh-Ca9ZX_yExU153vzUfHMmSphw" />
+    
+    <!-- Firebase configuration -->
+    <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+    <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
   </application>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+  <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.VIBRATE" />
   <uses-feature android:name="android.hardware.location" android:required="false" />
   <uses-feature android:name="android.hardware.location.gps" android:required="false" />
   <uses-feature android:name="android.hardware.location.network" android:required="false" />

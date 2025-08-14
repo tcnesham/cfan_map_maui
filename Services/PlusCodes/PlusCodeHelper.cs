@@ -1,5 +1,5 @@
 ﻿using Google.OpenLocationCode;
-using Maui.GoogleMaps;
+using CFAN.SchoolMap.Maui.GoogleMaps;
 
 namespace CFAN.SchoolMap.Services.PlusCodes
 {

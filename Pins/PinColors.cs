@@ -1,4 +1,4 @@
-﻿using Maui.GoogleMaps;
+﻿using CFAN.SchoolMap.Maui.GoogleMaps;
 
 namespace CFAN.SchoolMap.Pins
 {

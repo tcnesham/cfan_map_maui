@@ -67,10 +67,21 @@ namespace CFAN.SchoolMap.Maui.Database
             
             Dialogs = UserDialogs.Instance;
             ErrorHandler = DependencyService.Resolve<IExceptionHandler>();
-            CrossCloudFirestore.Current.Instance.FirestoreSettings = new FirestoreSettings
+            
+            // Initialize Firestore with error handling
+            try
             {
-                CacheSizeBytes = FirestoreSettings.CacheSizeUnlimited
-            };
+                CrossCloudFirestore.Current.Instance.FirestoreSettings = new FirestoreSettings
+                {
+                    CacheSizeBytes = FirestoreSettings.CacheSizeUnlimited
+                };
+                System.Diagnostics.Debug.WriteLine("Repository constructor: Firestore initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Repository constructor: Firestore initialization failed - {ex.Message}");
+                // Continue without Firestore for now - it may initialize later
+            }
             
             // Subscribe to authentication state changes
             WeakReferenceMessenger.Default.Register<CurrentUserChangedMessage>(this, async (r, m) =>

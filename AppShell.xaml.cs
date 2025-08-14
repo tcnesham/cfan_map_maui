@@ -43,11 +43,23 @@ public partial class AppShell : Shell, INotifyPropertyChanged
 		
 		try
 		{
+			System.Diagnostics.Debug.WriteLine($"ServiceHelper.Services is null: {ServiceHelper.Services == null}");
+			
 			_repository = ServiceHelper.GetService<IRepository>();
 			if (_repository == null)
 			{
+				System.Diagnostics.Debug.WriteLine("First attempt to get Repository failed, trying alternative approach");
 				// Try alternative approach
 				_repository = ServiceHelper.Services?.GetService<IRepository>();
+			}
+			
+			if (_repository == null)
+			{
+				System.Diagnostics.Debug.WriteLine("Repository is still null after both attempts");
+			}
+			else
+			{
+				System.Diagnostics.Debug.WriteLine($"Repository resolved successfully: {_repository.GetType().Name}");
 			}
 			
 			// Subscribe to repository property changes if available

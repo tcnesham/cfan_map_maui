@@ -1,6 +1,6 @@
 ﻿using GoogleApi.Entities.Places.Common;
 using GoogleApi.Entities.Places.Search.Common.Enums;
-using Maui.GoogleMaps;
+using CFAN.SchoolMap.Maui.GoogleMaps;
 
 namespace CFAN.SchoolMap.Services.Places
 {

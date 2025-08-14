@@ -16,7 +16,7 @@ using GoogleApi.Entities.Places.Search.NearBy.Request;
 using GoogleApi.Entities.Places.Search.NearBy.Response;
 using GoogleApi.Entities.Places.Search.Text.Request;
 using GoogleApi.Entities.Places.Search.Text.Response;
-using Maui.GoogleMaps;
+using CFAN.SchoolMap.Maui.GoogleMaps;
 using static GoogleApi.GooglePlaces;
 
 [assembly: Dependency(typeof(PlaceService))]

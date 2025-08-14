@@ -1,6 +1,6 @@
 ﻿using System;
 using CFAN.SchoolMap.Helpers;
-using Maui.GoogleMaps;
+using CFAN.SchoolMap.Maui.GoogleMaps;
 using CFAN.SchoolMap.ViewModels;
 
 

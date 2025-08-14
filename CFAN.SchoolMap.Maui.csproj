@@ -86,6 +86,12 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+		<PackageReference Include="Xamarin.GooglePlayServices.Base" Version="118.7.0.1" />
+		<PackageReference Include="Xamarin.GooglePlayServices.Maps" Version="119.2.0.1" />
+		<PackageReference Include="Xamarin.GooglePlayServices.Location" Version="121.0.1" />
+		<PackageReference Include="Xamarin.Firebase.Auth" Version="122.1.1" />
+		<PackageReference Include="Xamarin.Firebase.Firestore" Version="124.10.2" />
+		<ProguardConfiguration Include="Platforms\Android\proguard.cfg" />
 	</ItemGroup>
 
 	<!-- Include google-services.json for Android -->

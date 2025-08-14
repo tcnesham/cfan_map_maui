@@ -4,7 +4,7 @@
              x:Class="CFAN.SchoolMap.Views.MarketMapPage"
              x:DataType="vm:MarketMapVM"
              xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
-             xmlns:googleMaps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
+             xmlns:googleMaps="clr-namespace:CFAN.SchoolMap.Maui.GoogleMaps"
              xmlns:bindings="clr-namespace:CFAN.SchoolMap.Maui.GoogleMaps.Bindings"
              xmlns:c="clr-namespace:ISO3166;assembly=ISO3166"
              xmlns:wpf1="clr-namespace:CFAN.SchoolMap.WPF;assembly=CFAN.SchoolMap.Maui"

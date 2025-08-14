@@ -28,29 +28,29 @@ namespace CFAN.SchoolMap.Views
             map.MapStyle = MapStyle.FromJson(
 @"[
     {
-    featureType: ""all"",
-        elementType: ""labels"",
-        stylers: [
-        { visibility: ""on"" }
+    ""featureType"": ""all"",
+        ""elementType"": ""labels"",
+        ""stylers"": [
+        { ""visibility"": ""on"" }
         ]
     }
-]"); ;
-            VM.MapControl = map;
+]");
+                        // VM.MapControl = map;
             if (_firstLoad)
             {
                 _firstLoad = false;
-                await TaskHelper.SafeRun(VM.NavigateToCurrentPosition());
+                // await TaskHelper.SafeRun(VM.NavigateToCurrentPosition());
             }
         }
 
         private void MapStreet(object sender, CheckedChangedEventArgs e)
         {
-            map.MapType = MapType.Street;
+            // map.MapType = Maui.GoogleMaps.MapType.Street;
         }
 
         private void MapSatellite(object sender, CheckedChangedEventArgs e)
         {
-            map.MapType = MapType.Hybrid;
+            // map.MapType = Maui.GoogleMaps.MapType.Hybrid;
         }
     }
 }

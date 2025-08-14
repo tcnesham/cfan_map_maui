@@ -1,27 +1,35 @@
-﻿using CFAN.Common.WPF;
-using CFAN.SchoolMap.Enumerations;
-using CFAN.SchoolMap.Helpers;
-using CFAN.SchoolMap.Map;
-using CFAN.SchoolMap.Model;
-using CFAN.SchoolMap.MVVM;
-using CFAN.SchoolMap.Pins;
-using CFAN.SchoolMap.Pins.States;
-using CFAN.SchoolMap.Services.Auth;
-using CFAN.SchoolMap.Services.PlusCodes;
-using GoogleApi.Entities.Places.Search.Common.Enums;
-using ISO3166;
-using System.Collections.ObjectModel;
-using System.Timers;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Timers;
+using Microsoft.Maui.Authentication;
+using ISO3166;
+using CFAN.Common.WPF;
+using CFAN.SchoolMap.Model;
+using CFAN.SchoolMap.Enumerations;
+using CFAN.SchoolMap.Pins.States;
+using CFAN.SchoolMap.Helpers;
+using CFAN.SchoolMap.Pins;
+using CFAN.SchoolMap.Services.Places;
+using CFAN.SchoolMap.Services.PlusCodes;
+using CFAN.SchoolMap.Services.Auth;
+using CFAN.SchoolMap.Maui.GoogleMaps;
+using CFAN.SchoolMap.Map;
+using GoogleApi.Entities.Places.Search.Common.Enums;
 using CFAN.SchoolMap.Maui.Model;
-using CFAN.SchoolMap.Maui.Database;
-using Maui.GoogleMaps;
-using Pin = Maui.GoogleMaps.Pin;
-using PinType = Maui.GoogleMaps.PinType;
-using Position = Maui.GoogleMaps.Position;
-using Polygon = Maui.GoogleMaps.Polygon;
-using Location = Microsoft.Maui.Devices.Sensors.Location;
 using CFAN.SchoolMap.Maui.CountryBorders;
+using CFAN.SchoolMap.Maui.Database;
+using CFAN.SchoolMap.MVVM;
+using Pin = CFAN.SchoolMap.Maui.GoogleMaps.Pin;
+using PinType = CFAN.SchoolMap.Maui.GoogleMaps.PinType;
+using Position = CFAN.SchoolMap.Maui.GoogleMaps.Position;
+using Polygon = CFAN.SchoolMap.Maui.GoogleMaps.Polygon;
+using MapSpan = CFAN.SchoolMap.Maui.GoogleMaps.MapSpan;
+using Distance = CFAN.SchoolMap.Maui.GoogleMaps.Distance;
+using CameraPosition = CFAN.SchoolMap.Maui.GoogleMaps.CameraPosition;
+using CameraUpdate = CFAN.SchoolMap.Maui.GoogleMaps.CameraUpdate;
+using CameraUpdateFactory = CFAN.SchoolMap.Maui.GoogleMaps.CameraUpdateFactory;
+using Bounds = CFAN.SchoolMap.Maui.GoogleMaps.Bounds;
+using Location = Microsoft.Maui.Devices.Sensors.Location;
 
 namespace CFAN.SchoolMap.ViewModels
 {
@@ -64,10 +72,13 @@ namespace CFAN.SchoolMap.ViewModels
             
 
             var auth = DependencyService.Get<IAuth>();
-            CurrentUserEmail = auth.User.Email;
+            CurrentUserEmail = auth?.User?.Email ?? string.Empty;
 
             Repository = DependencyService.Get<IRepository>();
-            Repository.PlacesChanged += PlacesChanged;
+            if (Repository != null)
+            {
+                Repository.PlacesChanged += PlacesChanged;
+            }
             Clipboard.ClipboardContentChanged += Clipboard_ClipboardContentChanged;
             Clipboard_ClipboardContentChanged(null, null);
 
@@ -168,7 +179,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         public bool IsPlaceSelected => SelectedPlace != null;
 
-        public bool CanSavePlace => IsPlaceSelected && (SelectedPlace.Type == PinDesignFactory.New.TypeCh);
+        public bool CanSavePlace => IsPlaceSelected && SelectedPlace != null && (SelectedPlace.Type == PinDesignFactory.New.TypeCh);
 
         public bool IsNextEnabled
         {
@@ -317,7 +328,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         public ICommand CopyPlaceNameCommand => new SafeCommand(async () =>
         {
-            if (string.IsNullOrEmpty(SelectedPlace.Name)) return;
+            if (SelectedPlace == null || string.IsNullOrEmpty(SelectedPlace.Name)) return;
             await Clipboard.SetTextAsync(SelectedPlace.Name);
             Dialogs.Toast(CopyPlaceNameMessage);
         });
@@ -339,7 +350,10 @@ namespace CFAN.SchoolMap.ViewModels
                     return;
                 }
 
-                await Repository.ImportFromText<PlacePoint>(CountryCode, ClipboardText);
+                if (Repository != null)
+                {
+                    await Repository.ImportFromText<PlacePoint>(CountryCode, ClipboardText);
+                }
             }
         });
         public Task Initialization { get; set; } = Task.CompletedTask;
@@ -393,7 +407,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         protected abstract TPoint CountryPlacesAdd(PinDesign pd, string v);
 
-        public global::Maui.GoogleMaps.Map MapControl { get; set; } = null!;
+        public Maui.GoogleMaps.Map MapControl { get; set; } = null!;
 
         public ICommand MarkPlaceCommand => new SafeCommand(() =>
         {
@@ -438,7 +452,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         public ICommand OpenSearchCommand => new SafeCommand(async () =>
         {
-            if (!CanOpenSearch) return;
+            if (!CanOpenSearch || Country == null) return;
             await Shell.Current.GoToAsync(new ShellNavigationState("SearchPage"+ Param.EncodeParameters(new Param(nameof(SearchViewModel.Country), Country.ThreeLetterCode))));
         });
 
@@ -688,6 +702,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         protected async Task JumpToPlusCode(string plusCode)
         {
+            if (MapControl == null) return;
             var position = PlusCodeHelper.ToPosition(plusCode);
             await MapControl.AnimateCamera(CameraUpdateFactory.NewPositionZoom(position, 18));
         }
@@ -700,8 +715,9 @@ namespace CFAN.SchoolMap.ViewModels
 
         protected async Task MoveCameraToPosition(Position newPos)
         {
+            if (MapControl == null) return;
             var speed = 2.0;
-            if (_lastSelected != null)
+            if (_lastSelected != null && SelectedPlace != null)
             {
                 var bounds = Bounds.FromPositions(new[] {_lastSelected.Position, newPos});
                 var zoomout = CameraUpdateFactory.NewBounds(bounds, 100);
@@ -788,9 +804,9 @@ namespace CFAN.SchoolMap.ViewModels
         public async Task NavigateToCurrentPosition()
         {
             var c = await GetCurrentPosition();
-            if (c != null)
+            if (c != null && MapControl != null)
             {
-                MapControl.MoveToRegion(MapSpan.FromCenterAndRadius(new Position(c.Latitude, c.Longitude), Distance.FromMiles(20)));
+                MapControl.MoveToRegion(Maui.GoogleMaps.MapSpan.FromCenterAndRadius(new Maui.GoogleMaps.Position(c.Latitude, c.Longitude), Maui.GoogleMaps.Distance.FromMiles(20)));
             }
         }
         
@@ -805,6 +821,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         protected async Task ZoomTo(Position position, double maxZoomLevel = 18)
         {
+            if (MapControl == null) return;
             await MapControl.AnimateCamera(CameraUpdateFactory.NewPositionZoom(position, maxZoomLevel), TimeSpan.FromSeconds(2));
         }
 
@@ -878,9 +895,12 @@ namespace CFAN.SchoolMap.ViewModels
 
             if (pin != null && pin.Label == PlacePoint.PlaceNamePlaceholder && !pin.Equals(_lastSelectedPin))
             {
-                await Repository.LoadPlaceName(SelectedPlace);
-                pin.Label = SelectedPlace?.GetPinName();
-                _lastSelectedPin = pin;
+                if (Repository != null && SelectedPlace != null)
+                {
+                    await Repository.LoadPlaceName(SelectedPlace);
+                    pin.Label = SelectedPlace.GetPinName();
+                    _lastSelectedPin = pin;
+                }
             }
 
             await LoadPlaceInfo();

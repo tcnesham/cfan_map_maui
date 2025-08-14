@@ -1,6 +1,6 @@
 using CFAN.SchoolMap.Pins.States;
 using CFAN.SchoolMap.Services.PlusCodes;
-using Maui.GoogleMaps;
+using CFAN.SchoolMap.Maui.GoogleMaps;
 using Plugin.CloudFirestore;
 using Plugin.CloudFirestore.Attributes;
 using System.ComponentModel;

@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Microsoft.Maui.Controls;
 
 namespace CFAN.SchoolMap.Maui.GoogleMaps.Bindings
