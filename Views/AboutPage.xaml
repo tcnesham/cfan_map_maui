@@ -4,7 +4,6 @@
              x:Class="CFAN.SchoolMap.Maui.AboutPage"
              xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
              xmlns:wpf="clr-namespace:CFAN.Common.WPF;assembly=CFAN.SchoolMap.Maui"
-             x:DataType="vm:AboutViewModel"
              Title="{Binding Title}">
     
 
@@ -56,7 +55,7 @@
                 </StackLayout>
                 </Frame>
                 <Frame 
-                    IsVisible="{Binding Auth.IsSignIn, Converter={StaticResource InvertedBooleanConverter}}"
+                    IsVisible="True"
                     HorizontalOptions="Center">
                     <StackLayout>
                         <Label

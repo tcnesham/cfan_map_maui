@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using CFAN.SchoolMap.Services.Auth;
 using CFAN.SchoolMap.Maui.Services.Auth;
+using CFAN.SchoolMap.Maui.Database;
 
 namespace CFAN.SchoolMap.Maui;
 
@@ -19,6 +20,7 @@ public static class MauiProgram
 
 		// Register services
 		builder.Services.AddSingleton<IAuth, DefaultAuthService>();
+		builder.Services.AddSingleton<IRepository, Repository>();
 		builder.Services.AddSingleton<App>();
 
 #if DEBUG

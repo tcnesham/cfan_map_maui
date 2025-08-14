@@ -4,15 +4,90 @@
              xmlns:local="clr-namespace:CFAN.SchoolMap.Maui"
              xmlns:wpf="clr-namespace:CFAN.Common.WPF"
              x:Class="CFAN.SchoolMap.Maui.App">
+     <!--
+        Define global resources and styles here, that apply to all pages in your app.
+    -->
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-            
-            <!-- Add converters -->
-            <wpf:NegationVC x:Key="InvertedBooleanConverter" />
+            <Color x:Key="BackgroundColor">White</Color>
+            <Color x:Key="FrameColor">#d90000</Color>
+            <Color x:Key="TextPrimaryColor">#50504F</Color>
+            <Color x:Key="TextSecondaryColor">#d90000</Color>
+
+            <Color x:Key="Primary">#d90000</Color>
+            <Color x:Key="Highlight">#F39421</Color>
+            <Color x:Key="Text">#50504F</Color>
+            <Color x:Key="Placeholder">#C0C0BF</Color>
+            <Color
+                x:Key="MarketsPrimary">#ea580c</Color> <!-- Orange 600 from Tailwind -->
+            <Color
+                x:Key="MarketsHighlight">#fb923c</Color> <!-- Orgnge 400 from Tailwind -->
+
+            <Style TargetType="Button">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="VisualStateManager.VisualStateGroups">
+                    <VisualStateGroupList>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{StaticResource BackgroundColor}"/>
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource Primary}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Disabled">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{StaticResource BackgroundColor}"/>
+                                    <Setter Property="BackgroundColor" Value="#332196F3" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateGroupList>
+                </Setter>
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="TextColor" Value="{StaticResource Text}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="Label" Class="Header">
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="TextColor" Value="{DynamicResource Primary}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="Entry">
+                <Setter Property="PlaceholderColor" Value="{StaticResource Placeholder}"/>
+                <Setter Property="TextColor" Value="{StaticResource Text}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="RadioButton">
+                <Setter Property="TextColor" Value="{StaticResource Text}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="Editor">
+                <Setter Property="PlaceholderColor" Value="{StaticResource Placeholder}"/>
+                <Setter Property="TextColor" Value="{StaticResource Text}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="ListView">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="ScrollView">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="StackLayout">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="Picker">
+                <Setter Property="TextColor" Value="{StaticResource Text}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
+            <Style TargetType="DatePicker">
+                <Setter Property="TextColor" Value="{StaticResource Text}"/>
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

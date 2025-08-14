@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Controls;
@@ -10,20 +11,39 @@ namespace CFAN.SchoolMap.Maui
 {
     public partial class AboutPage : ContentPage
     {
+        private AboutViewModel? _viewModel;
+
         public AboutPage()
         {
             InitializeComponent();
             
-            // Set the BindingContext after the page is initialized
+            // Initialize asynchronously to avoid startup crashes
+            _ = InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
             try
             {
-                BindingContext = new AboutViewModel();
+                // Small delay to ensure services are ready
+                await Task.Delay(10);
+                
+                _viewModel = new AboutViewModel();
+                BindingContext = _viewModel;
             }
             catch (Exception ex)
             {
-                // Log the exception to help with debugging
                 System.Diagnostics.Debug.WriteLine($"Error creating AboutViewModel: {ex}");
-                throw;
+                
+                // Create a minimal fallback if needed
+                BindingContext = new
+                {
+                    Title = "About CfaN RED",
+                    Version = "Version: Unknown",
+                    Auth = (object?)null,
+                    Email = "",
+                    Password = ""
+                };
             }
         }
     }
