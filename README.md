@@ -124,3 +124,9 @@
 ### 
 ###     XC0022 Compiled Bindings Optimization Complete
     	
+
+
+## How to run
+### Start your emulator (or let the MAUI debugger prompt you). - see start-emulator.sh
+### In VS Code, pick “.NET MAUI” in the Run and Debug menu and press F5.
+### You should be prompted to choose Android and the device/AVD, then it will build and deploy.

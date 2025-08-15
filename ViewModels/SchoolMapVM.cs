@@ -12,6 +12,7 @@ using System.Timers;
 using CFAN.SchoolMap.Maui.Model;
 using Pin = CFAN.SchoolMap.Maui.GoogleMaps.Pin;
 using PinType = CFAN.SchoolMap.Maui.GoogleMaps.PinType;
+using GPosition = CFAN.SchoolMap.Maui.GoogleMaps.Position;
 using CFAN.SchoolMap.Maui.CountryBorders;
 
 using Timer = System.Timers.Timer;
@@ -27,6 +28,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         public SchoolMapVM() : base()
         {
+            System.Diagnostics.Debug.WriteLine("[DEBUG] SchoolMapVM constructor called");
             Title = "CFAN School map";
 
             _statisticsTimer = new Timer(60000);
@@ -35,6 +37,7 @@ namespace CFAN.SchoolMap.ViewModels
             _statisticsTimer.Start();
 
             Initialization = TaskHelper.SafeRun(DisplayCountryStats);
+            System.Diagnostics.Debug.WriteLine("[DEBUG] SchoolMapVM constructor completed");
         }
 
         public SchoolVisit CurrentVisit
@@ -120,7 +123,8 @@ namespace CFAN.SchoolMap.ViewModels
 
         protected void _statisticsTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Device.BeginInvokeOnMainThread(UpdateStatistics);
+            // Use MainThread to marshal to UI thread in MAUI instead of obsolete Device.BeginInvokeOnMainThread
+            Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(UpdateStatistics);
         }
 
         protected override PlacePoint CountryPlacesAdd(PinDesign pd, string v)

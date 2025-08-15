@@ -1,0 +1,11 @@
+{
+  // Minimal, supported MAUI Android configuration. The MAUI debugger will build/deploy and prompt for device.
+  "version": "0.2.0",
+  "configurations": [
+    {
+  "name": ".NET MAUI",
+  "type": "maui",
+  "request": "launch"
+    }
+  ]
+}

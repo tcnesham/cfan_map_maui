@@ -2,7 +2,7 @@
 using CFAN.SchoolMap.Services.Auth;
 using CFAN.SchoolMap.Maui.Services.Auth;
 using CFAN.SchoolMap.Maui.Database;
-using Maui.GoogleMaps.Hosting;
+using Microsoft.Maui.Controls.Maps;
 
 namespace CFAN.SchoolMap.Maui;
 
@@ -10,10 +10,10 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
-        var builder = MauiApp.CreateBuilder();
+		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-			.UseGoogleMaps()
+			.UseMauiMaps()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

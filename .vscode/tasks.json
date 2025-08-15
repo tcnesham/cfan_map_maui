@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build:android-debug",
+			"type": "shell",
+			"command": "dotnet build -c Debug -f net9.0-android",
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		},
+		{
+			"label": "run:android-pixel9",
+			"type": "shell",
+			"command": "dotnet build -c Debug -f net9.0-android && echo \"Ready to deploy. Start your Pixel_9 AVD manually, then use Debug > Start Debugging with 'C#: CFAN.SchoolMap.Maui [Pixel_9]'\"",
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
+}

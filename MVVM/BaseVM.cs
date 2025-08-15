@@ -171,6 +171,8 @@ namespace CFAN.SchoolMap.MVVM
         public event PropertyChangedEventHandler PropertyChanged;
         protected void Notify([CallerMemberName] string propertyName = "")
         {
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] Notify called for property: {propertyName}");
+            Console.WriteLine($"[DEBUG] Notify called for property: {propertyName}");
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 

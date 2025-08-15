@@ -16,7 +16,7 @@ using GoogleApi.Entities.Places.Search.NearBy.Request;
 using GoogleApi.Entities.Places.Search.NearBy.Response;
 using GoogleApi.Entities.Places.Search.Text.Request;
 using GoogleApi.Entities.Places.Search.Text.Response;
-using CFAN.SchoolMap.Maui.GoogleMaps;
+using Microsoft.Maui.Maps;
 using static GoogleApi.GooglePlaces;
 
 [assembly: Dependency(typeof(PlaceService))]
@@ -31,7 +31,7 @@ namespace CFAN.SchoolMap.Services.Places
         {
         }
 
-        public async Task<Prediction[]> AutocompleteSearch(double latitude, double longitude, string text, string session, string country)
+    public async Task<Prediction[]> AutocompleteSearch(double latitude, double longitude, string text, string session, string country)
         {
             await LimitSearch();
             var request = new PlacesAutoCompleteRequest
@@ -50,7 +50,7 @@ namespace CFAN.SchoolMap.Services.Places
             {
                 return response.Predictions.ToArray();
             }
-            return null;
+            return Array.Empty<Prediction>();
         }
 
         private async Task LimitSearch()
@@ -74,7 +74,7 @@ namespace CFAN.SchoolMap.Services.Places
             }
         }
 
-        public async Task<IEnumerable<SearchResult>> NearBySearch(MapSpan area, bool shortSearch, params SearchPlaceType[] types)
+    public async Task<IEnumerable<SearchResult>> NearBySearch(MapSpan area, bool shortSearch, params SearchPlaceType[] types)
         {
             var list = new List<SearchResult>();
             foreach (var type in types)
@@ -87,7 +87,7 @@ namespace CFAN.SchoolMap.Services.Places
             return list;
         }
 
-        private async Task<IEnumerable<SearchResult>> ShortNearbySearch(SearchPlaceType type, MapSpan area)
+    private async Task<IEnumerable<SearchResult>> ShortNearbySearch(SearchPlaceType type, MapSpan area)
         {
             await LimitSearch();
             var r = new List<SearchResult>();
@@ -112,7 +112,7 @@ namespace CFAN.SchoolMap.Services.Places
             return r;
         }
 
-        public async Task<IEnumerable<SearchResult>> FullNearBySearch(SearchPlaceType type, MapSpan area)
+    public async Task<IEnumerable<SearchResult>> FullNearBySearch(SearchPlaceType type, MapSpan area)
         {
             var r = new List<SearchResult>();
             if (!_searchIsRunning)
@@ -174,7 +174,7 @@ namespace CFAN.SchoolMap.Services.Places
             }
         }
 
-        private PlacesNearBySearchRequest FirstNearBySearchRequest(SearchPlaceType type, MapSpan area)
+    private PlacesNearBySearchRequest FirstNearBySearchRequest(SearchPlaceType type, MapSpan area)
         {
             var loc = area.Center;
             return new PlacesNearBySearchRequest
@@ -204,10 +204,10 @@ namespace CFAN.SchoolMap.Services.Places
             }
         }
 
-        private bool _searchIsRunning;
-        private GoogleCredential _credential;
-        private BigQueryClient _bqClient;
-        private IRepository _repository;
+    private bool _searchIsRunning;
+    private GoogleCredential? _credential;
+    private BigQueryClient? _bqClient;
+    private IRepository? _repository;
 
         //nepoužívat - drahé
         //private async Task<IEnumerable<SearchResult>> ShortTextSearch(string text, MapSpan area)
@@ -290,7 +290,7 @@ namespace CFAN.SchoolMap.Services.Places
         //    }
         //}
 
-        private static PlacesTextSearchRequest FirstTextSearchRequest(string text, MapSpan area)
+    private static PlacesTextSearchRequest FirstTextSearchRequest(string text, MapSpan area)
         {
             return new PlacesTextSearchRequest
             {
@@ -333,7 +333,7 @@ namespace CFAN.SchoolMap.Services.Places
                 PlaceId = placeId
             };
             var rv= await GooglePlaces.Details.QueryAsync(r);
-            return PlusCodeHelper.ToPlusCode(new Position(rv.Result.Geometry.Location.Latitude, rv.Result.Geometry.Location.Longitude));
+            return PlusCodeHelper.ToPlusCode(rv.Result.Geometry.Location.Latitude, rv.Result.Geometry.Location.Longitude);
         }
     }
 }

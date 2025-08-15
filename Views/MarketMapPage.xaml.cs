@@ -1,6 +1,6 @@
 ﻿using System;
 using CFAN.SchoolMap.Helpers;
-using CFAN.SchoolMap.Maui.GoogleMaps;
+using Microsoft.Maui.Controls.Maps;
 using CFAN.SchoolMap.ViewModels;
 
 
@@ -20,22 +20,7 @@ namespace CFAN.SchoolMap.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            map.UiSettings.CompassEnabled = true;
-            map.UiSettings.RotateGesturesEnabled = true;
-            map.UiSettings.TiltGesturesEnabled = false;
-            map.UiSettings.ZoomControlsEnabled = false;
-            map.MyLocationEnabled = true;
-            map.UiSettings.MyLocationButtonEnabled = true;
-            map.MapStyle = MapStyle.FromJson(
-@"[
-    {
-    featureType: ""all"",
-        elementType: ""labels"",
-        stylers: [
-        { visibility: ""on"" }
-        ]
-    }
-]"); ;
+            // Microsoft.Maui.Controls.Maps has limited UI settings; no MapStyle API
             VM.MapControl = map;
             if (_firstLoad)
             {
@@ -46,12 +31,12 @@ namespace CFAN.SchoolMap.Views
 
         private void MapStreet(object sender, CheckedChangedEventArgs e)
         {
-            map.MapType = MapType.Street;
+            map.MapType = Microsoft.Maui.Maps.MapType.Street;
         }
 
         private void MapSatellite(object sender, CheckedChangedEventArgs e)
         {
-            map.MapType = MapType.Hybrid;
+            map.MapType = Microsoft.Maui.Maps.MapType.Hybrid;
         }
     }
 }

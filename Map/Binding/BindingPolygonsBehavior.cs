@@ -4,6 +4,8 @@ using Foundation;
 #endif
 using Microsoft.Maui.ApplicationModel;
 
+using Maui.GoogleMaps;
+
 namespace CFAN.SchoolMap.Maui.GoogleMaps.Bindings
 {
 #if IOS || MACCATALYST

@@ -3,12 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CFAN.SchoolMap.Views.SchoolMapPage"
              xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
-             xmlns:mauiMaps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
-             xmlns:bindings="clr-namespace:CFAN.SchoolMap.Maui.GoogleMaps.Bindings"
-             xmlns:c="clr-namespace:ISO3166;assembly=ISO3166"
+             xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
              xmlns:wpf1="clr-namespace:CFAN.SchoolMap.WPF;assembly=CFAN.SchoolMap.Maui"
              xmlns:controls="clr-namespace:CFAN.SchoolMap.Controls;assembly=CFAN.SchoolMap.Maui"
-    x:DataType="vm:SchoolMapVM"
+             xmlns:c="clr-namespace:ISO3166;assembly=ISO3166"
+             x:DataType="vm:SchoolMapVM"
              Title="{Binding Title}">
     <Shell.TitleView>
         <Grid BackgroundColor="Transparent">
@@ -42,15 +41,15 @@
         <StackLayout 
             Orientation="Vertical">
             <Grid
-                HorizontalOptions="FillAndExpand"
-                VerticalOptions="FillAndExpand">
-                <mauiMaps:Map 
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill">
+                <maps:Map 
                     BackgroundColor="White"
                     x:Name="map"
                     MapType="Hybrid"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand">
-                </mauiMaps:Map>
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill">
+                </maps:Map>
                 <StackLayout
                     Padding="5,5,65,5"
                     VerticalOptions="End" 
@@ -81,6 +80,7 @@
                         Padding="10,0,5,0"
                         Command="{Binding SearchStateCommand}"
                         Text="{Binding Country, Converter={wpf1:CountryNameCX}}"  
+                        Clicked="OnCountryButtonClicked"
                         Opacity="0.8" />
                     <Label 
                         BackgroundColor="DarkGray"
@@ -105,7 +105,7 @@
                             Text="Choose country:"/>
                         <Entry 
                             Margin="5,0,10,0" 
-                            HorizontalOptions="FillAndExpand"
+                            HorizontalOptions="Fill"
                             FontSize="22"
                             Text="{Binding CountrySearch}"
                             Placeholder="search here"/>
@@ -212,9 +212,9 @@
                                     VerticalOptions="Center"
                                     StyleClass="Header"
                                     Text="Date of visit:" />
-                                <DatePicker
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="EndAndExpand"
+                                    <DatePicker
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="End"
                                     FontSize="Subtitle"
                                     Date="{Binding CurrentVisit.Date}" />
                             </StackLayout>
@@ -266,11 +266,11 @@
                                     FontAttributes="Bold"
                                     FontSize="Title"
                                     Command="{Binding CurrentVisit.LessPopulationCommand}" />
-                                <Entry
-                                    FontSize="Title"
-                                    WidthRequest="100"
-                                    HorizontalTextAlignment="Center"
-                                    HorizontalOptions="CenterAndExpand"
+                                    <Entry
+                                        FontSize="Title"
+                                        WidthRequest="100"
+                                        HorizontalTextAlignment="Center"
+                                        HorizontalOptions="Center"
                                     Keyboard="Numeric"
                                     Text="{Binding CurrentVisit.NOfChildren}" />
                                 <Button
@@ -291,11 +291,11 @@
                                     FontAttributes="Bold"
                                     FontSize="Title"
                                     Command="{Binding CurrentVisit.LessConvertsCommand}" />
-                                <Entry
-                                    FontSize="Title"
-                                    WidthRequest="100"
-                                    HorizontalTextAlignment="Center"
-                                    HorizontalOptions="CenterAndExpand"
+                                    <Entry
+                                        FontSize="Title"
+                                        WidthRequest="100"
+                                        HorizontalTextAlignment="Center"
+                                        HorizontalOptions="Center"
                                     Keyboard="Numeric"
                                     Text="{Binding CurrentVisit.PercOfConverts}" />
                                 <Button
@@ -307,15 +307,13 @@
                             <Label
                                 StyleClass="Header"
                                 Text="Note:" />
-                            <Frame
-                                HasShadow="False"
-                                BorderColor="Gray">
+                            <Border Stroke="Gray">
                                 <Editor
                                     AutoSize="TextChanges"
                                     MaxLength="1000"
                                     Keyboard="Chat"
                                     Text="{Binding CurrentVisit.Note}" />
-                            </Frame>
+                            </Border>
                             <Label
                                 Text="{Binding CurrentVisit.UpdatedVisualization}"
                                 HorizontalOptions="Center"
@@ -327,7 +325,7 @@
             <Label 
                 Text="{Binding Message}"
                 IsVisible="{Binding HasMessage}"
-                HorizontalOptions="CenterAndExpand"
+                HorizontalOptions="Center"
                 TextColor="Black"
                 FontSize="18"
                 Margin="0,0,0,0"

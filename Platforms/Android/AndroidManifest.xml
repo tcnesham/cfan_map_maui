@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="232" android:versionName="2.0.32.0" package="com.cfan.schoolmap" android:installLocation="auto">
   <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="35" />
-  <application android:label="CFAN.SchoolMap.Maui.Android" android:theme="@style/MainTheme" android:usesCleartextTraffic="true">
-    <uses-library android:name="org.​apache.http.legacy" android:required="false" android:enableOnBackInvokedCallback="true" />
+  <application android:label="CFAN.SchoolMap.Maui.Android" android:theme="@style/MainTheme" android:usesCleartextTraffic="true" android:enableOnBackInvokedCallback="true">
+    <uses-library android:name="org.​apache.http.legacy" android:required="false"/>
     
     <!-- Google Play Services metadata -->
     <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />

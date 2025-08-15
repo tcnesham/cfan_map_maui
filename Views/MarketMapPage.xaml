@@ -4,8 +4,7 @@
              x:Class="CFAN.SchoolMap.Views.MarketMapPage"
              x:DataType="vm:MarketMapVM"
              xmlns:vm="clr-namespace:CFAN.SchoolMap.ViewModels"
-             xmlns:googleMaps="clr-namespace:CFAN.SchoolMap.Maui.GoogleMaps"
-             xmlns:bindings="clr-namespace:CFAN.SchoolMap.Maui.GoogleMaps.Bindings"
+             xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
              xmlns:c="clr-namespace:ISO3166;assembly=ISO3166"
              xmlns:wpf1="clr-namespace:CFAN.SchoolMap.WPF;assembly=CFAN.SchoolMap.Maui"
              xmlns:controls="clr-namespace:CFAN.SchoolMap.Controls;assembly=CFAN.SchoolMap.Maui"
@@ -47,26 +46,13 @@
             <Grid
                 HorizontalOptions="FillAndExpand"
                 VerticalOptions="FillAndExpand">
-                <googleMaps:Map 
+                <maps:Map 
                     BackgroundColor="White"
                     x:Name="map"
                     MapType="Hybrid"
-                    SelectedPin="{Binding SelectedPin}"
-                    CameraPosition="{Binding CameraPosition}"
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="FillAndExpand">
-                    <googleMaps:Map.Behaviors>
-                        <bindings:BindingPinsBehavior Value="{Binding Pins}"/>
-                        <bindings:BindingPolygonsBehavior Value="{Binding Borders}"/>
-                        <!--<bindings:BindingRegionBehavior Value="{Binding CurrentRegion}"/>-->
-                        <bindings:MapLongClickedToCommandBehavior Command="{Binding MapClickedCommand}"/>
-                        <bindings:PoiClickedToCommandBehavior Command="{Binding PoiClickedCommand}"/>
-                        <bindings:UpdateCameraPositionBehavior CameraUpdate="{Binding CameraUpdate}"/>
-                        <bindings:PinDragEndToCommandBehavior Command="{Binding PositionChangedCommand}"/>
-                        <bindings:PinDoubleClickedToCommandBehavior Command="{Binding PinDoubleClickedCommand}"/>
-                        <bindings:InfoWindowClickedToCommandBehavior Command="{Binding RenamePinCommand}"/> 
-                    </googleMaps:Map.Behaviors>
-                </googleMaps:Map>
+                </maps:Map>
                 <StackLayout
                     Padding="5,5,65,5"
                     VerticalOptions="End" 

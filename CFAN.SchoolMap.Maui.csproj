@@ -68,6 +68,11 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<!-- Exclude legacy GoogleMaps binding behaviors from compilation -->
+	<ItemGroup>
+		<Compile Remove="Map/Binding/**/*.cs" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Acr.UserDialogs.Maui" Version="9.2.2" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -79,16 +84,12 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="9.0.90" />
-		<PackageReference Include="Onion.Maui.GoogleMaps" Version="6.2.0" />
 		<PackageReference Include="OpenLocationCode" Version="2.1.1" />
 		<PackageReference Include="Plugin.CloudFirestore" Version="4.1.0" />
 		
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
-		<PackageReference Include="Xamarin.GooglePlayServices.Base" Version="118.7.0.1" />
-		<PackageReference Include="Xamarin.GooglePlayServices.Maps" Version="119.2.0.1" />
-		<PackageReference Include="Xamarin.GooglePlayServices.Location" Version="121.0.1" />
 		<PackageReference Include="Xamarin.Firebase.Auth" Version="122.1.1" />
 		<PackageReference Include="Xamarin.Firebase.Firestore" Version="124.10.2" />
 		<ProguardConfiguration Include="Platforms\Android\proguard.cfg" />

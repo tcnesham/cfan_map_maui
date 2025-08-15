@@ -4,6 +4,8 @@ using Foundation;
 #endif
 using Microsoft.Maui.ApplicationModel;
 
+using Maui.GoogleMaps;
+
 namespace CFAN.SchoolMap.Maui.GoogleMaps.Bindings
 {
 #if IOS || MACCATALYST
@@ -20,13 +22,13 @@ namespace CFAN.SchoolMap.Maui.GoogleMaps.Bindings
             private set => SetValue(ValuePropertyKey, value);
         }
 
-        protected override void OnAttachedTo(Map bindable)
+    protected override void OnAttachedTo(Map bindable)
         {
             base.OnAttachedTo(bindable);
             Value = bindable.Pins as ObservableCollection<Pin>;
         }
 
-        protected override void OnDetachingFrom(Map bindable)
+    protected override void OnDetachingFrom(Map bindable)
         {
             base.OnDetachingFrom(bindable);
             Value = null;

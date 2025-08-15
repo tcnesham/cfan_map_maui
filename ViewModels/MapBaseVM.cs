@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Timers;
+using System.Threading;
 using Microsoft.Maui.Authentication;
 using ISO3166;
 using CFAN.Common.WPF;
@@ -13,6 +14,9 @@ using CFAN.SchoolMap.Services.Places;
 using CFAN.SchoolMap.Services.PlusCodes;
 using CFAN.SchoolMap.Services.Auth;
 using CFAN.SchoolMap.Maui.GoogleMaps;
+using MauiMap = Microsoft.Maui.Controls.Maps.Map;
+using Microsoft.Maui.Maps;
+using Microsoft.Maui.Devices.Sensors;
 using CFAN.SchoolMap.Map;
 using GoogleApi.Entities.Places.Search.Common.Enums;
 using CFAN.SchoolMap.Maui.Model;
@@ -23,8 +27,8 @@ using Pin = CFAN.SchoolMap.Maui.GoogleMaps.Pin;
 using PinType = CFAN.SchoolMap.Maui.GoogleMaps.PinType;
 using Position = CFAN.SchoolMap.Maui.GoogleMaps.Position;
 using Polygon = CFAN.SchoolMap.Maui.GoogleMaps.Polygon;
-using MapSpan = CFAN.SchoolMap.Maui.GoogleMaps.MapSpan;
-using Distance = CFAN.SchoolMap.Maui.GoogleMaps.Distance;
+using MapSpan = Microsoft.Maui.Maps.MapSpan;
+using Distance = Microsoft.Maui.Maps.Distance;
 using CameraPosition = CFAN.SchoolMap.Maui.GoogleMaps.CameraPosition;
 using CameraUpdate = CFAN.SchoolMap.Maui.GoogleMaps.CameraUpdate;
 using CameraUpdateFactory = CFAN.SchoolMap.Maui.GoogleMaps.CameraUpdateFactory;
@@ -36,6 +40,16 @@ namespace CFAN.SchoolMap.ViewModels
     public abstract class MapBaseVM<TPoint> : BaseVM, IQueryAttributable
         where TPoint : BasePoint, new()
     {
+        // Helper for nullable reference-type properties to avoid nullable warnings treated as errors
+        protected bool SetRefProperty<T>(ref T? backingStore, T? value, string propertyName)
+            where T : class
+        {
+            if (EqualityComparer<T?>.Default.Equals(backingStore, value))
+                return false;
+            backingStore = value;
+            Notify(propertyName);
+            return true;
+        }
 
         protected const double MinSelZoom = 12;
         protected readonly System.Timers.Timer _messageTimer;
@@ -43,15 +57,15 @@ namespace CFAN.SchoolMap.ViewModels
         protected string _message = string.Empty!;
         protected bool _hasMessage;
         protected bool _canImport;
-        protected Pin _selectedPin = null!;
-        protected TPoint _selectedPlace = null!;
+    protected Pin? _selectedPin = null;
+        protected TPoint? _selectedPlace = null;
         protected bool _isNextEnabled;
         protected char _selectedTeamChar='A';
-        protected MapSpan _visibleRegion = MapSpan.FromCenterAndRadius(new Position(0, 0), Distance.FromKilometers(1));
+    protected MapSpan _visibleRegion = MapSpan.FromCenterAndRadius(new Location(0, 0), Distance.FromKilometers(1));
         protected ActionStates _actionState = ActionStates.ChoosingAction;
         protected string _countrySearch = string.Empty!;
         protected ActionStates _nextActionState;
-        protected Country _country = null!;
+    protected Country? _country = null;
         protected bool _isTeamSelectionVisible;
         protected CameraPosition _cameraPosition = new CameraPosition(new Position(0, 0), 1d);
         protected CameraUpdate _cameraUpdate = null!;
@@ -59,7 +73,14 @@ namespace CFAN.SchoolMap.ViewModels
         protected bool _isPlaceDetailVisible;
         protected TPoint? _lastSelected;
 
-        protected Pin _lastSelectedPin = null!;
+    protected Pin? _lastSelectedPin = null;
+        
+    // Cache of all ISO3166 countries to avoid expensive repeated static init on UI thread
+    private List<Country> _allCountries = new List<Country>();
+    // Backing collection for binding; we mutate items instead of recreating on every get
+    private ObservableCollection<Country> _countries = new ObservableCollection<Country>();
+    // Token to ensure only last filter result is applied
+    private int _countriesLoadToken = 0;
         
 
         protected ObservableCollection<Pin> _pins = new ObservableCollection<Pin>();
@@ -88,6 +109,8 @@ namespace CFAN.SchoolMap.ViewModels
             Teams = teams.ToArray();
 
             
+            // Kick off async preload of countries so first access doesn't block UI
+            _ = LoadCountriesAsync(null);
 
         }
 
@@ -133,13 +156,13 @@ namespace CFAN.SchoolMap.ViewModels
 
         
 
-        public Pin SelectedPin
+    public Pin? SelectedPin
         {
             get => _selectedPin;
             set
             {
-                SetProperty(ref _selectedPin, value);
-                if (value == null)
+                SetRefProperty(ref _selectedPin, value, nameof(SelectedPin));
+        if (value is null)
                 {
                     if (SelectedPlace!=null) SelectedPlace = null;
                 }
@@ -155,13 +178,13 @@ namespace CFAN.SchoolMap.ViewModels
 
         public ICommand SearchCommand => new SafeCommand(DoSearch);
 
-        public TPoint? SelectedPlace
+    public TPoint? SelectedPlace
         {
             get => _selectedPlace;
             set
             {
                 if (_selectedPlace?.PlusCode == value?.PlusCode) return;
-                SetProperty(ref _selectedPlace, value);
+                SetRefProperty(ref _selectedPlace, value, nameof(SelectedPlace));
                 Notify(nameof(IsPlaceSelected));
                 Notify(nameof(CanSavePlace));
                 if (value?.PlusCode == null)
@@ -172,7 +195,7 @@ namespace CFAN.SchoolMap.ViewModels
                 {
                     _pinsIndex.TryGetValue(value.PlusCode, out var pin);
                     SelectedPin = pin;
-                    TaskHelper.SafeRun(AfterPinSelected(value, pin));
+                    _ = TaskHelper.SafeRun(AfterPinSelected(value, pin));
                 }
             }
         }
@@ -205,7 +228,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         protected abstract void OnTeamCharChanged();
 
-        public Team SelectedTeam
+        public Team? SelectedTeam
         {
             get => Teams.FirstOrDefault(t=>t.Char==_selectedTeamChar);
             set
@@ -227,44 +250,99 @@ namespace CFAN.SchoolMap.ViewModels
 
         public bool CanOpenSearch => Country != null;
 
-        public IEnumerable<Country> Countries
-        {
-            get
-            {
-                var ls = CountrySearch?.ToLower();
-                return (CountrySearch == null)
-                    ? Country.List
-                    : Country.List.Where(c => c.Name.ToLower().Contains(ls) || c.ThreeLetterCode.ToLower() == ls);
-            }
-        }
+    public ObservableCollection<Country> Countries => _countries;
 
-        public Country Country
+    public Country? Country
         {
             get => _country;
             set
             {
-                SetProperty(ref _country, value);
+                SetRefProperty(ref _country, value, nameof(Country));
                 Notify(nameof(IsCountrySelected));
                 Notify(nameof(CanOpenSearch));
             }
         }
 
-        public string CountryCode => Country?.ThreeLetterCode;
+    public string? CountryCode => Country?.ThreeLetterCode;
 
         public string CountrySearch
         {
             get => _countrySearch;
-            set { SetProperty(ref _countrySearch, value); Notify(nameof(Countries));}
+            set 
+            { 
+                SetProperty(ref _countrySearch, value); 
+                // Filter asynchronously without blocking UI
+                _ = LoadCountriesAsync(value);
+                Notify(nameof(Countries));
+            }
         }
-        public ICommand CountrySelectedCommand => new SafeCommand(async item => 
+
+        private async Task LoadCountriesAsync(string? filter)
+        {
+            var token = Interlocked.Increment(ref _countriesLoadToken);
+            try
+            {
+                // Load all countries once on a background thread
+                if (_allCountries.Count == 0)
+                {
+                    var loaded = await Task.Run(() =>
+                    {
+                        Console.WriteLine("[DEBUG] Loading ISO3166.Country.List in background...");
+                        var list = ISO3166.Country.List;
+                        Console.WriteLine("[DEBUG] ISO3166.Country.List retrieved (background)");
+                        return list?.ToList() ?? new List<Country>();
+                    });
+                    _allCountries = loaded;
+                }
+
+                List<Country> toDisplay;
+                if (string.IsNullOrWhiteSpace(filter))
+                {
+                    toDisplay = _allCountries;
+                }
+                else
+                {
+                    var f = filter.Trim();
+                    toDisplay = _allCountries
+                        .Where(c => c.Name?.IndexOf(f, StringComparison.InvariantCultureIgnoreCase) >= 0
+                                 || c.ThreeLetterCode?.IndexOf(f, StringComparison.InvariantCultureIgnoreCase) >= 0
+                                 || c.TwoLetterCode?.IndexOf(f, StringComparison.InvariantCultureIgnoreCase) >= 0)
+                        .ToList();
+                }
+
+                // If a newer request started, abandon this result
+                if (token != _countriesLoadToken) return;
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    _countries.Clear();
+                    foreach (var c in toDisplay)
+                        _countries.Add(c);
+                    Notify(nameof(Countries));
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ERROR] LoadCountriesAsync failed: {ex}");
+            }
+        }
+    public ICommand CountrySelectedCommand => new SafeCommand(async item => 
         { 
             Country = item as ISO3166.Country;
             _actionState = _nextActionState; 
             StateChanged();
             await ChangeCountry();
         });
-        public bool IsCountriesVisible => _actionState == ActionStates.ChoosingCountry;
-        
+        public bool IsCountriesVisible 
+        { 
+            get 
+            {
+                var result = _actionState == ActionStates.ChoosingCountry;
+                System.Diagnostics.Debug.WriteLine($"[VISIBILITY DEBUG] IsCountriesVisible accessed - _actionState={_actionState}, result={result}");
+                Console.WriteLine($"[VISIBILITY DEBUG] IsCountriesVisible accessed - _actionState={_actionState}, result={result}");
+                return result;
+            }
+        }
         public bool IsCountrySelected => Country != null;
         public bool IsSearchVisible => (_actionState == ActionStates.SearchingForPlaces) && !IsPlaceDetailVisible;
 
@@ -352,11 +430,14 @@ namespace CFAN.SchoolMap.ViewModels
 
                 if (Repository != null)
                 {
-                    await Repository.ImportFromText<PlacePoint>(CountryCode, ClipboardText);
+                    if (CountryCode is { } code && ClipboardText is { } text)
+                    {
+                        await Repository.ImportFromText<PlacePoint>(code, text);
+                    }
                 }
             }
         });
-        public Task Initialization { get; set; } = Task.CompletedTask;
+        public new Task Initialization { get; set; } = Task.CompletedTask;
 
         
 
@@ -401,13 +482,16 @@ namespace CFAN.SchoolMap.ViewModels
                 var p = CountryPlacesAdd(pd, PlusCodeHelper.ToPlusCode(args.Point));
                 GetAndShowPin(PlacePoint.PlaceNamePlaceholder, pd, p.PlusCode);
                 GoTo(args.Point);
-                await SavePlace(CountryCode, p);
+                if (CountryCode is { } cc1)
+                {
+                    await SavePlace(cc1, p);
+                }
             }
         }, false);
 
         protected abstract TPoint CountryPlacesAdd(PinDesign pd, string v);
 
-        public Maui.GoogleMaps.Map MapControl { get; set; } = null!;
+    public MauiMap MapControl { get; set; } = null!;
 
         public ICommand MarkPlaceCommand => new SafeCommand(() =>
         {
@@ -456,7 +540,7 @@ namespace CFAN.SchoolMap.ViewModels
             await Shell.Current.GoToAsync(new ShellNavigationState("SearchPage"+ Param.EncodeParameters(new Param(nameof(SearchViewModel.Country), Country.ThreeLetterCode))));
         });
 
-        public ICommand PinDoubleClickedCommand => new SafeCommand<PinClickedEventArgs>(async args =>
+    public ICommand PinDoubleClickedCommand => new SafeCommand<PinClickedEventArgs>(async args =>
         {
             if (!(args.Pin.Tag is string)) return; //only for country pins
             var country = args.Pin.Tag as string;
@@ -475,7 +559,7 @@ namespace CFAN.SchoolMap.ViewModels
 
         public ICommand RenamePinCommand => new SafeCommand<InfoWindowClickedEventArgs>(async args =>
         {
-            if (args.Pin == null) return;
+            if (args.Pin is null) return;
             var selected = FindPlace(PlusCodeHelper.ToPlusCode(args.Pin.Position));
             var newName = await Dialogs.PromptAsync("Rename this place:", "Rename", placeholder: selected.Name);
             if (newName.Ok)
@@ -510,13 +594,16 @@ namespace CFAN.SchoolMap.ViewModels
             p.Name = args.Name;
             GetAndShowPin(p.Name, PinDesignFactory.Unvisited, p.PlusCode);
             GoTo(p.Position);
-            await SavePlace(CountryCode, p);
+            if (CountryCode is { } cc2)
+            {
+                await SavePlace(cc2, p);
+            }
             await Repository.SavePlaceName(p);
         }, false);
 
         public ICommand PositionChangedCommand => new SafeCommand<PinDragEventArgs>(async args =>
         {
-            if (SelectedPin == null) return;
+            if (SelectedPin is null) return;
             if (!await Dialogs.ConfirmAsync("Do you really want to move the pin here?")) return;
 
             var newpc = PlusCodeHelper.ToPlusCode(args.Pin.Position);
@@ -540,18 +627,48 @@ namespace CFAN.SchoolMap.ViewModels
             StateChanged();
         });
 
-        public Command SearchStateCommand => new SafeCommand(() =>
-        {
-            _nextActionState = _actionState;
-            _actionState = ActionStates.ChoosingCountry;
-            StateChanged();
-        });
+    private Command? _searchStateCommand;
+        public Command SearchStateCommand 
+        { 
+            get 
+            {
+                System.Diagnostics.Debug.WriteLine("[DEBUG] SearchStateCommand property accessed");
+                if (_searchStateCommand == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("[DEBUG] Creating new SearchStateCommand");
+                    _searchStateCommand = new Command(() =>
+                    {
+                        try
+                        {
+                            System.Diagnostics.Debug.WriteLine("[DEBUG] SearchStateCommand triggered!");
+                            Console.WriteLine("[DEBUG] SearchStateCommand triggered!");
+                            _nextActionState = _actionState;
+                            _actionState = ActionStates.ChoosingCountry;
+                            System.Diagnostics.Debug.WriteLine($"[DEBUG] ActionState set to: {_actionState}");
+                            Console.WriteLine($"[DEBUG] ActionState set to: {_actionState}");
+                            StateChanged();
+                            System.Diagnostics.Debug.WriteLine("[DEBUG] StateChanged called");
+                            Console.WriteLine("[DEBUG] StateChanged called");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[ERROR] SearchStateCommand exception: {ex}");
+                            Console.WriteLine($"[ERROR] SearchStateCommand exception: {ex}");
+                        }
+                    });
+                }
+                return _searchStateCommand;
+            }
+        }
 
         
 
         public ICommand SyncCommand => new SafeCommand(async () =>
         {
-            // TODO: implement synchronization logic if needed
+            if (Repository != null)
+            {
+                await Repository.SyncData();
+            }
         });
 
         public ICommand UnmarkPlaceCommand => new SafeCommand(() =>
@@ -583,7 +700,7 @@ namespace CFAN.SchoolMap.ViewModels
             foreach (var place in CountryPlaces.Places.Where(p => p.IsPlanned))
             {
                 _pinsIndex.TryGetValue(place.PlusCode, out var pin);
-                if (pin != null)
+                if (pin is not null)
                 {
                     if (highlight)
                     {
@@ -621,7 +738,7 @@ namespace CFAN.SchoolMap.ViewModels
         {
             MainThread.BeginInvokeOnMainThread(() => HasMessage = false);
         }
-        protected void PlacesChanged(object s, BasePoint[] places)
+    protected void PlacesChanged(object? s, BasePoint[] places)
         {
             foreach (var p in places)
             {
@@ -635,13 +752,13 @@ namespace CFAN.SchoolMap.ViewModels
         {
             var design = PinDesignFactory.Get(place);
             var pin = GetAndShowPin(place.Name ?? PlacePoint.PlaceNamePlaceholder, design, place.PlusCode);
-            if (pin == null) return;
+            if (pin is null) return;
             SetupPin(place, design, pin);
         }
 
         
 
-        public void ApplyQueryAttributes(IDictionary<string, string> query)
+    public new void ApplyQueryAttributes(IDictionary<string, string> query)
         {
             var pars = Param.DecodeValues(query);
             var plusCode = Param.GetOrDefault<string>(pars, nameof(SearchViewModel.PlusCode));
@@ -650,7 +767,7 @@ namespace CFAN.SchoolMap.ViewModels
                 var placeName = Param.GetOrDefault<string>(pars, nameof(SearchViewModel.PlaceName));
                 OnQueryPlaceUpdate(plusCode, placeName);
 
-                TaskHelper.SafeRun(JumpToPlusCode(plusCode));
+                _ = TaskHelper.SafeRun(JumpToPlusCode(plusCode));
             }
         }
 
@@ -668,7 +785,7 @@ namespace CFAN.SchoolMap.ViewModels
         protected Pin? GetAndShowPin(string name, PinDesign design, string plusCode)
         {
             _pinsIndex.TryGetValue(plusCode, out var pin);
-            if (pin == null && !design.IsHidden)
+            if (pin is null && !design.IsHidden)
             {
                 pin = new Pin
                 {
@@ -704,7 +821,9 @@ namespace CFAN.SchoolMap.ViewModels
         {
             if (MapControl == null) return;
             var position = PlusCodeHelper.ToPosition(plusCode);
-            await MapControl.AnimateCamera(CameraUpdateFactory.NewPositionZoom(position, 18));
+            var loc = new Location(position.Latitude, position.Longitude);
+            MapControl.MoveToRegion(MapSpan.FromCenterAndRadius(loc, Distance.FromMeters(300)));
+            await Task.CompletedTask;
         }
 
         protected async Task MoveCameraToPlusCode(string plusCode)
@@ -716,26 +835,12 @@ namespace CFAN.SchoolMap.ViewModels
         protected async Task MoveCameraToPosition(Position newPos)
         {
             if (MapControl == null) return;
-            var speed = 2.0;
-            if (_lastSelected != null && SelectedPlace != null)
-            {
-                var bounds = Bounds.FromPositions(new[] {_lastSelected.Position, newPos});
-                var zoomout = CameraUpdateFactory.NewBounds(bounds, 100);
-                var n = MapSpan.FromBounds(bounds);
-                speed = Math.Log(SelectedPlace.DistanceTo(_lastSelected) + Math.E);
-                speed = Math.Max(speed, 0.5);
-                speed = Math.Min(speed, 1.5);
-                if (n.Radius.Meters > VisibleRegion.Radius.Meters * 1.1)
-                {
-                    await MapControl.AnimateCamera(zoomout, TimeSpan.FromSeconds(speed));
-                }
-            }
-
-            await MapControl.AnimateCamera(CameraUpdateFactory.NewPositionZoom(newPos, 18), TimeSpan.FromSeconds(speed));
-            //await ZoomTo(SelectedPlace.Position, 18);
+            var loc = new Location(newPos.Latitude, newPos.Longitude);
+            MapControl.MoveToRegion(MapSpan.FromCenterAndRadius(loc, Distance.FromMeters(300)));
+            await Task.CompletedTask;
         }
 
-        protected async Task<Location> GetCurrentPosition()
+    protected async Task<Location?> GetCurrentPosition()
         {
             try
             {
@@ -754,7 +859,7 @@ namespace CFAN.SchoolMap.ViewModels
             //{
             //    // Handle permission exception
             //}
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -801,33 +906,41 @@ namespace CFAN.SchoolMap.ViewModels
             return Task.CompletedTask;
         }
 
-        public async Task NavigateToCurrentPosition()
+    public async Task NavigateToCurrentPosition()
         {
             var c = await GetCurrentPosition();
             if (c != null && MapControl != null)
             {
-                MapControl.MoveToRegion(Maui.GoogleMaps.MapSpan.FromCenterAndRadius(new Maui.GoogleMaps.Position(c.Latitude, c.Longitude), Maui.GoogleMaps.Distance.FromMiles(20)));
+    MapControl.MoveToRegion(MapSpan.FromCenterAndRadius(new Location(c.Latitude, c.Longitude), Distance.FromMiles(20)));
             }
         }
         
         protected void StateChanged()
         {
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] StateChanged called - ActionState: {_actionState}");
+            Console.WriteLine($"[DEBUG] StateChanged called - ActionState: {_actionState}");
             Notify(nameof(IsCountriesVisible));
+            Notify(nameof(Countries));
             Notify(nameof(IsSearchVisible));
             Notify(nameof(IsActionsVisible));
             Notify(nameof(IsPlanningVisible));
             Notify(nameof(IsVisitingVisible));
+            System.Diagnostics.Debug.WriteLine("[DEBUG] All notifications sent");
+            Console.WriteLine("[DEBUG] All notifications sent");
         }
 
         protected async Task ZoomTo(Position position, double maxZoomLevel = 18)
         {
             if (MapControl == null) return;
-            await MapControl.AnimateCamera(CameraUpdateFactory.NewPositionZoom(position, maxZoomLevel), TimeSpan.FromSeconds(2));
+            var loc = new Location(position.Latitude, position.Longitude);
+            MapControl.MoveToRegion(MapSpan.FromCenterAndRadius(loc, Distance.FromMeters(300)));
+            await Task.CompletedTask;
         }
 
         protected async void ShowCountryBorders()
         {
             Borders.Clear();
+            if (Country is null) return;
             var polygons = await CountryBorderHelper.GetCountryBorders(Country);
             if (polygons == null)
             {
@@ -851,7 +964,19 @@ namespace CFAN.SchoolMap.ViewModels
                 Borders.Add(gPolygon);
             }
             var bounds = await CountryBorderHelper.GetCountryBounds(Country);
-            CameraUpdate = CameraUpdateFactory.NewBounds(bounds, 0);
+            if (bounds != null)
+            {
+                if (MapControl != null)
+                {
+                    var center = new Location(
+                        (bounds.NorthEast.Latitude + bounds.SouthWest.Latitude) / 2.0,
+                        (bounds.NorthEast.Longitude + bounds.SouthWest.Longitude) / 2.0);
+                    var latMeters = Math.Abs(bounds.NorthEast.Latitude - bounds.SouthWest.Latitude) * 111_000.0;
+                    var lngMeters = Math.Abs(bounds.NorthEast.Longitude - bounds.SouthWest.Longitude) * 111_000.0;
+                    var radius = Math.Max(latMeters, lngMeters) / 2.0;
+                    MapControl.MoveToRegion(MapSpan.FromCenterAndRadius(center, Distance.FromMeters(radius)));
+                }
+            }
         }
 
         protected abstract Task ShowCountryPins();
@@ -874,8 +999,11 @@ namespace CFAN.SchoolMap.ViewModels
             _lastSelected = SelectedPlace;
             if (_lastSelected == null) return;
             ChangePinType(_lastSelected, design);
-            _lastSelected.Country = CountryCode;
-            await SavePlace(CountryCode, _lastSelected);
+            if (CountryCode is { } cc)
+            {
+                _lastSelected.Country = cc;
+                await SavePlace(cc, _lastSelected);
+            }
             await Repository.SavePlaceName(_lastSelected);
             SelectedPlace = null;
             await DoNextPlace();
@@ -893,7 +1021,7 @@ namespace CFAN.SchoolMap.ViewModels
                 _ = TaskHelper.SafeRun(async () => await ZoomTo(value.Position, MinSelZoom));
             }
 
-            if (pin != null && pin.Label == PlacePoint.PlaceNamePlaceholder && !pin.Equals(_lastSelectedPin))
+            if (pin is not null && pin.Label == PlacePoint.PlaceNamePlaceholder && (_lastSelectedPin is null || !pin.Equals(_lastSelectedPin)))
             {
                 if (Repository != null && SelectedPlace != null)
                 {
